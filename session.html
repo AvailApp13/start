@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DriveAtHome — Session</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #111827, #050608);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ===== TIMER ===== */
+    .timer {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .timer .label {
+      font-size: 12px;
+      opacity: 0.6;
+      letter-spacing: 1px;
+    }
+
+    .timer .time {
+      font-size: 42px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* ===== STATUS ===== */
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    /* ===== VIDEO AREA ===== */
+    .arena {
+      width: 90%;
+      max-width: 420px;
+      height: 240px;
+      margin-top: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 14px;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .arena video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    .arena video.active {
+      display: block;
+    }
+
+    .arena .placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* ===== CONTROLS ===== */
+    .controls {
+      width: 100%;
+      max-width: 420px;
+      margin-top: auto;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      height: 52px;
+      border-radius: 14px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #2a2a2a;
+      color: #fff;
+      transition: background 0.2s;
+    }
+
+    .btn:active {
+      background: #3a3a3a;
+    }
+
+    .btn.fire {
+      background: #ef4444;
+    }
+
+    .btn.fire:active {
+      background: #dc2626;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      background: #1a1a1a;
+      color: #666;
+    }
+
+    /* ===== END SESSION ===== */
+    .end {
+      width: calc(100% - 32px);
+      max-width: 420px;
+      margin: 16px;
+      height: 52px;
+      border-radius: 14px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TIMER -->
+  <div class="timer">
+    <div class="label">TIME LEFT</div>
+    <div class="time" id="timeValue">05:00</div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status" id="statusText">
+    Connecting…
+  </div>
+
+  <!-- VIDEO CONTAINER -->
+  <div class="arena" id="arena">
+    <div class="placeholder">Connecting to video stream…</div>
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn" id="btnLeft" onmousedown="sendKeyDown('ArrowLeft')" onmouseup="sendKeyUp('ArrowLeft')" ontouchstart="sendKeyDown('ArrowLeft')" ontouchend="sendKeyUp('ArrowLeft')">◀</button>
+    <button class="btn" id="btnUp" onmousedown="sendKeyDown('ArrowUp')" onmouseup="sendKeyUp('ArrowUp')" ontouchstart="sendKeyDown('ArrowUp')" ontouchend="sendKeyUp('ArrowUp')">▲</button>
+    <button class="btn" id="btnRight" onmousedown="sendKeyDown('ArrowRight')" onmouseup="sendKeyUp('ArrowRight')" ontouchstart="sendKeyDown('ArrowRight')" ontouchend="sendKeyUp('ArrowRight')">▶</button>
+    <button class="btn fire" id="btnFire" onmousedown="sendMouseDown(0)" onmouseup="sendMouseUp(0)" ontouchstart="sendMouseDown(0)" ontouchend="sendMouseUp(0)">FIRE</button>
+  </div>
+
+  <!-- END SESSION -->
+  <button class="end" onclick="endSession()">END SESSION</button>
+
+  <!-- WebRTC Adapter -->
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <!-- Socket.IO Client -->
+  <script src="https://cdn.socket.io/2.3.1/socket.io.js"></script>
+
+  <script>
+    // ===== CONFIGURATION =====
+    // Get signaling server URL from environment or use default
+    // Fix for file:// URLs - always use localhost for local development
+    const SIGNALING_SERVER = window.SIGNALING_SERVER || 
+      (window.location.protocol === 'file:' || window.location.hostname === '' 
+        ? 'http://localhost:8080'  // Default for file:// URLs
+        : (window.location.protocol === 'https:' 
+          ? 'https://' + window.location.hostname + ':443'
+          : 'http://' + window.location.hostname + ':8080'));
+    
+    // Room name - can be configured via URL parameter, config, or auto-generated
+    const urlParams = new URLSearchParams(window.location.search);
+    const ROOM_NAME = urlParams.get('room') || 
+                      (window.CONFIG && window.CONFIG.ROOM_NAME && !window.CONFIG.AUTO_ROOM ? window.CONFIG.ROOM_NAME : null) ||
+                      'driveathome-session-' + Date.now();
+    
+    console.log('Room name:', ROOM_NAME); // Log for easy reference
+
+    // ===== SESSION TIMER =====
+    const params = new URLSearchParams(window.location.search);
+    const minutes = parseInt(params.get("time"), 10) || 5;
+    let totalSeconds = minutes * 60;
+    let sessionActive = true;
+    const timeValue = document.getElementById("timeValue");
+    const statusText = document.getElementById("statusText");
+    const arena = document.getElementById("arena");
+    const remoteVideo = document.getElementById("remoteVideo");
+
+    function updateTimer() {
+      const m = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+      const s = String(totalSeconds % 60).padStart(2, "0");
+      timeValue.textContent = `${m}:${s}`;
+      
+      if (totalSeconds <= 0 && sessionActive) {
+        sessionActive = false;
+        clearInterval(timerInterval);
+        statusText.textContent = "Session ended";
+        disconnectWebRTC();
+        disableControls();
+      }
+    }
+
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // ===== WEBRTC CONNECTION =====
+    let isChannelReady = false;
+    let isInitiator = false;
+    let isStarted = false;
+    let pc;
+    let dataSendChannel;
+    let socket;
+
+    function initWebRTC() {
+      if (!sessionActive) return;
+
+      statusText.textContent = "Connecting to signaling server…";
+      
+      // Connect to signaling server
+      socket = io(SIGNALING_SERVER, {
+        transports: ['websocket', 'polling']
+      });
+
+      socket.on('connect', function() {
+        console.log('Connected to signaling server');
+        statusText.textContent = "Joining room…";
+        socket.emit('create or join', ROOM_NAME);
+      });
+
+      socket.on('disconnect', function() {
+        console.log('Disconnected from signaling server');
+        statusText.textContent = "Connection lost";
+      });
+
+      socket.on('connect_error', function(error) {
+        console.error('Socket.IO connection error:', error);
+        statusText.textContent = "Cannot connect to server. Make sure signaling server is running on " + SIGNALING_SERVER;
+        // Don't redirect - keep page open so user can see the error
+      });
+
+      socket.on('error', function(error) {
+        console.error('Socket.IO error:', error);
+        statusText.textContent = "Connection error. Check console for details.";
+      });
+
+      socket.on('created', function(room) {
+        console.log('Created room ' + room);
+        isInitiator = true;
+        statusText.textContent = "Waiting for host…";
+      });
+
+      socket.on('full', function(room) {
+        console.log('Room ' + room + ' is full');
+        statusText.textContent = "Room is full. Please try again.";
+      });
+
+      socket.on('join', function(room) {
+        console.log('Another peer made a request to join room ' + room);
+        isChannelReady = true;
+      });
+
+      socket.on('joined', function(room) {
+        console.log('Joined room: ' + room);
+        isChannelReady = true;
+        maybeStart();
+      });
+
+      socket.on('ready', function() {
+        console.log('Ready signal received');
+        isChannelReady = true;
+        maybeStart();
+      });
+
+      socket.on('message', function(message) {
+        console.log('Received message:', message);
+        if (message === 'got user media') {
+          maybeStart();
+        } else if (message.type === 'offer') {
+          if (!isInitiator && !isStarted) {
+            maybeStart();
+          }
+          let sessionDescription = new RTCSessionDescription(message);
+          pc.setRemoteDescription(sessionDescription).then(() => {
+            doAnswer();
+          }).catch(err => console.error('setRemoteDescription error:', err));
+        } else if (message.type === 'answer' && isStarted) {
+          let sessionDescription = new RTCSessionDescription(message);
+          pc.setRemoteDescription(sessionDescription).catch(err => console.error('setRemoteDescription error:', err));
+        } else if (message.type === 'candidate' && isStarted) {
+          var candidate = new RTCIceCandidate({
+            sdpMLineIndex: message.label,
+            candidate: message.candidate
+          });
+          pc.addIceCandidate(candidate).catch(err => console.error('addIceCandidate error:', err));
+        } else if (message === 'bye' && isStarted) {
+          handleRemoteHangup();
+        }
+      });
+
+      // Create empty local stream for controller
+      gotStream(new MediaStream());
+    }
+
+    function gotStream(stream) {
+      console.log('Got local stream');
+      if (isInitiator) {
+        maybeStart();
+      }
+    }
+
+    function maybeStart() {
+      console.log('maybeStart()', isStarted, isChannelReady, sessionActive);
+      if (!isStarted && isChannelReady && sessionActive) {
+        console.log('Creating peer connection');
+        createPeerConnection();
+        isStarted = true;
+        if (isInitiator) {
+          doCall();
+        }
+      }
+    }
+
+    function createPeerConnection() {
+      try {
+        pc = new RTCPeerConnection({
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' }
+          ]
+        });
+
+        dataSendChannel = pc.createDataChannel('sendDataChannel');
+        dataSendChannel.onopen = function() {
+          console.log('Data channel opened');
+          statusText.textContent = "Connected";
+          enableControls();
+        };
+        dataSendChannel.onerror = function(error) {
+          console.error('Data channel error:', error);
+        };
+
+        pc.ondatachannel = function(event) {
+          console.log('Data channel received');
+        };
+
+        pc.onicecandidate = function(event) {
+          if (event.candidate) {
+            sendMessage({
+              type: 'candidate',
+              label: event.candidate.sdpMLineIndex,
+              id: event.candidate.sdpMid,
+              candidate: event.candidate.candidate
+            });
+          }
+        };
+
+        pc.ontrack = function(event) {
+          console.log('Remote stream received');
+          remoteVideo.srcObject = event.streams[0];
+          remoteVideo.classList.add('active');
+          arena.querySelector('.placeholder').style.display = 'none';
+          statusText.textContent = "Connected";
+        };
+
+        pc.onconnectionstatechange = function() {
+          console.log('Connection state:', pc.connectionState);
+          if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+            statusText.textContent = "Connection lost";
+          }
+        };
+
+        console.log('Created RTCPeerConnection');
+      } catch (e) {
+        console.error('Failed to create PeerConnection:', e);
+        statusText.textContent = "Connection error";
+      }
+    }
+
+    function doCall() {
+      console.log('Sending offer');
+      pc.createOffer({
+        offerToReceiveAudio: false,
+        offerToReceiveVideo: true
+      }).then(setLocalAndSendMessage).catch(err => {
+        console.error('createOffer error:', err);
+      });
+    }
+
+    function doAnswer() {
+      console.log('Sending answer');
+      pc.createAnswer({
+        offerToReceiveAudio: false,
+        offerToReceiveVideo: true
+      }).then(setLocalAndSendMessage).catch(err => {
+        console.error('createAnswer error:', err);
+      });
+    }
+
+    function setLocalAndSendMessage(sessionDescription) {
+      pc.setLocalDescription(sessionDescription).then(() => {
+        sendMessage(sessionDescription);
+      }).catch(err => {
+        console.error('setLocalDescription error:', err);
+      });
+    }
+
+    function sendMessage(message) {
+      if (socket && socket.connected) {
+        socket.emit('message', message);
+      }
+    }
+
+    function handleRemoteHangup() {
+      console.log('Remote hangup');
+      disconnectWebRTC();
+      statusText.textContent = "Host disconnected";
+    }
+
+    function disconnectWebRTC() {
+      if (pc) {
+        pc.close();
+        pc = null;
+      }
+      if (socket) {
+        socket.emit('bye');
+        socket.disconnect();
+      }
+      isStarted = false;
+      isChannelReady = false;
+      remoteVideo.srcObject = null;
+      remoteVideo.classList.remove('active');
+      arena.querySelector('.placeholder').style.display = 'block';
+      disableControls();
+    }
+
+    // ===== INPUT CONTROL =====
+    function sendInput(input) {
+      if (!dataSendChannel || dataSendChannel.readyState !== 'open' || !sessionActive) {
+        return;
+      }
+      try {
+        dataSendChannel.send(JSON.stringify(input));
+      } catch (e) {
+        console.error('Error sending input:', e);
+      }
+    }
+
+    function sendKeyDown(key) {
+      sendInput({ type: 'keydown', key: key });
+    }
+
+    function sendKeyUp(key) {
+      sendInput({ type: 'keyup', key: key });
+    }
+
+    function sendMouseDown(button) {
+      sendInput({ type: 'mousedown', button: button });
+    }
+
+    function sendMouseUp(button) {
+      sendInput({ type: 'mouseup', button: button });
+    }
+
+    // Touch support for video area
+    remoteVideo.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = remoteVideo.getBoundingClientRect();
+      const x = (touch.clientX - rect.left) / rect.width;
+      const y = (touch.clientY - rect.top) / rect.height;
+      sendInput({
+        type: 'mousemove',
+        x: x,
+        y: y
+      });
+      sendInput({ type: 'mousedown', button: 0 });
+    });
+
+    remoteVideo.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = remoteVideo.getBoundingClientRect();
+      const x = (touch.clientX - rect.left) / rect.width;
+      const y = (touch.clientY - rect.top) / rect.height;
+      sendInput({
+        type: 'mousemove',
+        x: x,
+        y: y
+      });
+    });
+
+    remoteVideo.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      sendInput({ type: 'mouseup', button: 0 });
+    });
+
+    // Mouse support for video area
+    remoteVideo.addEventListener('mousemove', function(e) {
+      if (!dataSendChannel || dataSendChannel.readyState !== 'open') return;
+      const rect = remoteVideo.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      sendInput({
+        type: 'mousemove',
+        x: x,
+        y: y
+      });
+    });
+
+    remoteVideo.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      sendInput({ type: 'mousedown', button: e.button });
+    });
+
+    remoteVideo.addEventListener('mouseup', function(e) {
+      e.preventDefault();
+      sendInput({ type: 'mouseup', button: e.button });
+    });
+
+    remoteVideo.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    // ===== CONTROL ENABLE/DISABLE =====
+    function enableControls() {
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.disabled = false;
+      });
+    }
+
+    function disableControls() {
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.disabled = true;
+      });
+    }
+
+    // ===== SESSION MANAGEMENT =====
+    function endSession() {
+      disconnectWebRTC();
+      window.location.href = "index.html";
+    }
+
+    // Initialize WebRTC connection when page loads
+    window.addEventListener('load', function() {
+      console.log('Page loaded, initializing WebRTC...');
+      console.log('Signaling server:', SIGNALING_SERVER);
+      console.log('Room name:', ROOM_NAME);
+      try {
+        initWebRTC();
+      } catch (error) {
+        console.error('Failed to initialize WebRTC:', error);
+        statusText.textContent = "Initialization error: " + error.message;
+        // Keep page open - don't redirect
+      }
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+      disconnectWebRTC();
+    });
+  </script>
+
+</body>
+</html>

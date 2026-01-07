@@ -1,0 +1,129 @@
+import json
+import os
+import threading
+import asyncio
+
+from flask import Flask, request, jsonify
+
+# ===============================
+# FLASK HTTP API (БЫЛО — НЕ ТРОГАЕМ)
+# ===============================
+
+app = Flask(__name__)
+
+# CORS support (manual implementation to avoid extra dependency)
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+PROMO_FILE = os.path.join("promo", "promo_codes.json")
+
+
+def load_promos():
+    if not os.path.exists(PROMO_FILE):
+        return {}
+    with open(PROMO_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_promos(data):
+    with open(PROMO_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+
+@app.route("/")
+def index():
+    return "DriveAtHome bridge is running"
+
+
+@app.route("/status")
+def status():
+    return jsonify({
+        "status": "ok",
+        "robot": "not connected yet"
+    })
+
+
+@app.route("/promo", methods=["POST"])
+def promo():
+    data = request.get_json()
+    if not data or "code" not in data:
+        return jsonify({"ok": False, "error": "NO_CODE"}), 400
+
+    code = data["code"].strip()
+    promos = load_promos()
+
+    if code not in promos:
+        return jsonify({"ok": False, "error": "INVALID_CODE"}), 404
+
+    promo = promos[code]
+
+    if promo.get("used"):
+        return jsonify({"ok": False, "error": "CODE_ALREADY_USED"}), 403
+
+    minutes = promo.get("minutes", 0)
+
+    if minutes <= 0:
+        return jsonify({"ok": False, "error": "INVALID_MINUTES"}), 500
+
+    promos[code]["used"] = True
+    save_promos(promos)
+
+    return jsonify({
+        "ok": True,
+        "minutes": minutes
+    })
+
+
+# ===============================
+# WEBSOCKET CONTROL (НОВОЕ, БЕЗОПАСНО)
+# ===============================
+
+import websockets
+
+async def ws_handler(websocket):
+    print("WS client connected")
+    try:
+        async for message in websocket:
+            data = json.loads(message)
+            print("WS RECEIVED:", data)
+
+            action = data.get("action")
+
+            if action == "fire":
+                print("🔥 FIRE command")
+
+            elif action == "move":
+                print(f"🚗 MOVE x={data.get('x')} y={data.get('y')}")
+
+            elif action == "aim":
+                print(f"🎯 AIM yaw={data.get('yaw')} pitch={data.get('pitch')}")
+
+    except Exception as e:
+        print("WS error:", e)
+
+
+async def ws_main():
+    async with websockets.serve(ws_handler, "0.0.0.0", 8765):
+        print("WS running on ws://0.0.0.0:8765")
+        await asyncio.Future()
+
+
+def start_ws():
+    asyncio.run(ws_main())
+
+
+# ===============================
+# ENTRY POINT (БЫЛО — ОСТАВЛЯЕМ)
+# ===============================
+
+if __name__ == "__main__":
+    print("OK BRIDGE START")
+
+    ws_thread = threading.Thread(target=start_ws, daemon=True)
+    ws_thread.start()
+
+    app.run(host="0.0.0.0", port=5000)

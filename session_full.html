@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>DriveAtHome — Full Control</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #05070c;
+  overflow: hidden;
+  color: #fff;
+}
+
+/* ===== TOP HUD ===== */
+.hud-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(0,0,0,.85), rgba(0,0,0,.2));
+  z-index: 10;
+}
+
+.timer {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* ===== LIVE STATUS ===== */
+.live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.live-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.live.green .live-dot {
+  background: #22c55e;
+  animation: pulse 1.4s infinite;
+}
+
+.live.yellow .live-dot {
+  background: #facc15;
+}
+
+.live.red .live-dot {
+  background: #ef4444;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(34,197,94,.7); }
+  70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+
+/* ===== VIDEO ===== */
+.video {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, #111827, #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video .placeholder {
+  opacity: .35;
+  font-size: 14px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.video video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+}
+
+#startOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.95);
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+#startOverlay h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+#startOverlay p {
+  margin-bottom: 30px;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+#startButton {
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#startButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(34,197,94,0.4);
+}
+
+#startButton:active {
+  transform: translateY(0);
+}
+
+#startButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#startStatus {
+  margin-top: 20px;
+  font-size: 14px;
+  opacity: 0.6;
+  min-height: 20px;
+}
+
+/* ===== CROSSHAIR ===== */
+.crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255,255,255,.6);
+  border-radius: 50%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.crosshair:before,
+.crosshair:after {
+  content: "";
+  position: absolute;
+  background: rgba(255,255,255,.6);
+}
+
+.crosshair:before {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.crosshair:after {
+  height: 2px;
+  width: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ===== CONTROLS ===== */
+.controls {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 10;
+}
+
+.joystick {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.2);
+  position: relative;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fire {
+  width: 96px;
+  height: 56px;
+  border-radius: 18px;
+  border: none;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: #fff;
+}
+
+.zoom {
+  width: 96px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===== END ===== */
+.end {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 44px;
+  border-radius: 16px;
+  border: none;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ===== STATUS PANEL ===== */
+.status-panel {
+  position: fixed;
+  top: 70px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 240px;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+}
+
+.status-panel h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-item:last-child {
+  border-bottom: none;
+}
+
+.status-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.status-value {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-value.status-ok {
+  color: #22c55e;
+}
+
+.status-value.status-error {
+  color: #ef4444;
+}
+
+.status-value.status-waiting {
+  color: #facc15;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.ok {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.status-dot.error {
+  background: #ef4444;
+}
+
+.status-dot.waiting {
+  background: #facc15;
+  animation: pulse 1.4s infinite;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hud-top">
+  <div class="timer" id="timer">05:00</div>
+  <div class="live red" id="liveStatus">
+    <div class="live-dot"></div>
+    <span id="liveText">BUSY</span>
+  </div>
+</div>
+
+<!-- Status Panel -->
+<div class="status-panel" id="statusPanel">
+  <h3>Connection Status</h3>
+  <div class="status-item">
+    <span class="status-label">Signaling Server</span>
+    <span class="status-value status-waiting" id="statusSignaling">
+      <span class="status-dot waiting"></span>
+      <span>Checking...</span>
+    </span>
+  </div>
+  <div class="status-item">
+    <span class="status-label">Socket.IO</span>
+    <span class="status-value status-waiting" id="statusSocketIO">
+      <span class="status-dot waiting"></span>
+      <span>Not loaded</span>
+    </span>
+  </div>
+  <div class="status-item">
+    <span class="status-label">WebRTC</span>
+    <span class="status-value status-waiting" id="statusWebRTC">
+      <span class="status-dot waiting"></span>
+      <span>Not initialized</span>
+    </span>
+  </div>
+  <div class="status-item">
+    <span class="status-label">Video Stream</span>
+    <span class="status-value status-waiting" id="statusStream">
+      <span class="status-dot waiting"></span>
+      <span>Not received</span>
+    </span>
+  </div>
+</div>
+
+<div class="video" id="videoContainer">
+  <div id="startOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); z-index: 100;">
+    <div style="text-align: center; padding: 20px;">
+      <h2 style="margin-bottom: 20px; font-size: 24px;">Ready to Connect</h2>
+      <p style="margin-bottom: 30px; opacity: 0.8;">Click the button below to start the connection</p>
+      <button id="startButton" onclick="startConnection()" style="padding: 16px 32px; font-size: 18px; font-weight: 600; background: linear-gradient(90deg, #22c55e, #16a34a); color: white; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 12px rgba(34,197,94,0.3);">
+        START CONNECTION
+      </button>
+      <p id="startStatus" style="margin-top: 20px; font-size: 14px; opacity: 0.6;"></p>
+    </div>
+  </div>
+  <span class="placeholder">Waiting to start…</span>
+  <video id="remoteVideo" autoplay playsinline style="width: 100%; height: 100%; object-fit: contain; display: none;"></video>
+</div>
+
+<div class="crosshair"></div>
+
+<div class="controls">
+  <div class="joystick" id="moveJoystick"></div>
+
+  <div class="actions">
+    <button class="fire" onmousedown="sendMouseDown(0)" onmouseup="sendMouseUp(0)" ontouchstart="sendMouseDown(0)" ontouchend="sendMouseUp(0)">FIRE</button>
+    <button class="zoom" onmousedown="sendMouseDown(2)" onmouseup="sendMouseUp(2)" ontouchstart="sendMouseDown(2)" ontouchend="sendMouseUp(2)">ZOOM</button>
+  </div>
+
+  <div class="joystick" id="aimJoystick"></div>
+</div>
+
+<button class="end" onclick="endSession()">END SESSION</button>
+
+<!-- nipplejs -->
+<script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.1/dist/nipplejs.min.js"></script>
+<!-- WebRTC Adapter -->
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<!-- Socket.IO Client - Will be loaded when user clicks Start -->
+<script>
+  // Status update functions
+  function updateStatusPanel(component, status, message) {
+    const statusEl = document.getElementById('status' + component);
+    if (!statusEl) return;
+    
+    const dot = statusEl.querySelector('.status-dot');
+    const text = statusEl.querySelector('span:last-child');
+    
+    statusEl.className = 'status-value status-' + status;
+    if (dot) {
+      dot.className = 'status-dot ' + status;
+    }
+    if (text) {
+      text.textContent = message;
+    }
+  }
+  
+  // Check if signaling server is reachable
+  function checkSignalingServer(url, callback) {
+    updateStatusPanel('Signaling', 'waiting', 'Checking...');
+    const testUrl = url.replace(/\/socket\.io.*$/, '');
+    fetch(testUrl, { method: 'HEAD', mode: 'no-cors' })
+      .then(() => {
+        updateStatusPanel('Signaling', 'ok', 'Available');
+        if (callback) callback(true);
+      })
+      .catch(() => {
+        // Try a more direct check
+        const xhr = new XMLHttpRequest();
+        xhr.timeout = 3000;
+        xhr.open('GET', testUrl + '/socket.io/socket.io.js', true);
+        xhr.onload = function() {
+          if (xhr.status === 200 || xhr.status === 0) {
+            updateStatusPanel('Signaling', 'ok', 'Available');
+            if (callback) callback(true);
+          } else {
+            updateStatusPanel('Signaling', 'error', 'Not responding');
+            if (callback) callback(false);
+          }
+        };
+        xhr.onerror = function() {
+          updateStatusPanel('Signaling', 'error', 'Not running');
+          if (callback) callback(false);
+        };
+        xhr.ontimeout = function() {
+          updateStatusPanel('Signaling', 'error', 'Timeout');
+          if (callback) callback(false);
+        };
+        xhr.send();
+      });
+  }
+  
+  // MINIMAL Socket.IO connection test
+  window.loadSocketIO = function() {
+    // Load Socket.IO client from server ONLY
+    const script = document.createElement('script');
+    script.src = 'http://localhost:8080/socket.io/socket.io.js';
+    script.async = true;
+    
+    script.onload = function() {
+      setTimeout(function() {
+        if (typeof io === 'undefined') {
+          alert('ERROR: Socket.IO client not loaded (io is undefined)');
+          return;
+        }
+        
+        // Create global socket connection
+        console.log('Creating Socket.IO connection to http://localhost:8080');
+        window.socket = io("http://localhost:8080");
+        
+        window.socket.on("connect", function() {
+          console.log('Socket.IO CONNECTED');
+          console.log('socket.connected:', window.socket.connected);
+          console.log('socket.id:', window.socket.id);
+          updateStatusPanel('SocketIO', 'ok', 'Connected');
+          // Immediately start WebRTC
+          initWebRTC();
+        });
+        
+        window.socket.on("connect_error", function(error) {
+          console.error('Socket.IO connection error:', error);
+          updateStatusPanel('SocketIO', 'error', 'Connection failed');
+          alert("CONNECTION ERROR: " + error.message);
+        });
+      }, 100);
+    };
+    
+    script.onerror = function() {
+      alert('ERROR: Failed to load Socket.IO from http://localhost:8080/socket.io/socket.io.js');
+    };
+    
+    document.head.appendChild(script);
+  };
+</script>
+
+<script>
+/* ===== CONFIGURATION ===== */
+// Get signaling server URL - use the one set by Socket.IO loader, or determine it
+const SIGNALING_SERVER = window.SIGNALING_SERVER_URL || window.SIGNALING_SERVER || 
+  (window.location.protocol === 'file:' || window.location.hostname === '' 
+    ? 'http://localhost:8080'
+    : (window.location.protocol === 'https:' 
+      ? 'https://' + window.location.hostname + ':443'
+      : 'http://' + window.location.hostname + ':8080'));
+
+// Room name - use fixed room name to match controllee
+const urlParams = new URLSearchParams(window.location.search);
+const ROOM_NAME = urlParams.get('room') || 'driveathome-room';
+
+console.log('Room name:', ROOM_NAME);
+console.log('Signaling server:', SIGNALING_SERVER);
+
+/* ===== TIMER ===== */
+const params = new URLSearchParams(window.location.search);
+const minutes = parseInt(params.get("time"), 10) || 5;
+let total = minutes * 60;
+let sessionActive = true;
+const timer = document.getElementById("timer");
+
+function tick() {
+  const m = String(Math.floor(total / 60)).padStart(2,"0");
+  const s = String(total % 60).padStart(2,"0");
+  timer.textContent = `${m}:${s}`;
+  if (total > 0) {
+    total--;
+  } else if (sessionActive) {
+    sessionActive = false;
+    clearInterval(timerInterval);
+    setLiveState("red");
+    document.getElementById("liveText").textContent = "SESSION ENDED";
+    disconnectWebRTC();
+    controlEnabled = false;
+  }
+}
+tick();
+const timerInterval = setInterval(tick, 1000);
+
+/* ===== LIVE STATUS ===== */
+function setLiveState(state) {
+  const el = document.getElementById("liveStatus");
+  const text = document.getElementById("liveText");
+  el.className = "live " + state;
+  if (state === "green") text.textContent = "LIVE NOW";
+  if (state === "yellow") text.textContent = "RESERVED";
+  if (state === "red") text.textContent = "BUSY";
+}
+setLiveState("red");
+
+/* ===== WEBRTC CONNECTION ===== */
+let isChannelReady = false;
+let isInitiator = false;
+let isStarted = false;
+let pc;
+let dataSendChannel;
+let socket;
+
+function initWebRTC() {
+  if (!sessionActive) return;
+  
+  // Use existing connected socket
+  socket = window.socket;
+  if (!socket || !socket.connected) {
+    console.error('Socket not connected');
+    return;
+  }
+  
+  console.log('Initializing WebRTC with connected socket');
+  console.log('socket.connected:', socket.connected);
+  console.log('socket.id:', socket.id);
+  
+  updateStatusPanel('WebRTC', 'waiting', 'Joining room...');
+  setLiveState("yellow");
+  document.getElementById("liveText").textContent = "JOINING";
+  
+  // Socket is already connected, start WebRTC flow
+  socket.emit('create or join', ROOM_NAME);
+
+  socket.on('disconnect', function() {
+    console.log('Disconnected from signaling server');
+    updateStatusPanel('Signaling', 'error', 'Disconnected');
+    updateStatusPanel('SocketIO', 'error', 'Disconnected');
+    updateStatusPanel('WebRTC', 'error', 'Disconnected');
+    updateStatusPanel('Stream', 'error', 'Lost');
+    setLiveState("red");
+    document.getElementById("liveText").textContent = "DISCONNECTED";
+  });
+
+  socket.on('connect_error', function(error) {
+    console.error('Socket.IO connection error:', error);
+    updateStatusPanel('Signaling', 'error', 'Connection error');
+    updateStatusPanel('SocketIO', 'error', 'Connection failed');
+    updateStatusPanel('WebRTC', 'error', 'Failed');
+    setLiveState("red");
+    document.getElementById("liveText").textContent = "CONNECTION ERROR";
+  });
+
+  socket.on('created', function(room) {
+    console.log('Created room ' + room);
+    // Frontend is NEVER initiator - always waits for offer from controllee
+    isInitiator = false;
+    updateStatusPanel('WebRTC', 'waiting', 'Waiting for host...');
+    setLiveState("yellow");
+    document.getElementById("liveText").textContent = "WAITING FOR HOST";
+  });
+
+  socket.on('joined', function(room) {
+    console.log('Joined room: ' + room);
+    updateStatusPanel('WebRTC', 'ok', 'Connected');
+    isChannelReady = true;
+    maybeStart();
+  });
+
+  socket.on('ready', function() {
+    console.log('Ready signal received');
+    updateStatusPanel('WebRTC', 'ok', 'Ready');
+    isChannelReady = true;
+    maybeStart();
+  });
+
+  socket.on('message', function(message) {
+    console.log('Received message:', message);
+    if (message === 'got user media') {
+      console.log('Got user media signal');
+      maybeStart();
+    } else if (message.type === 'offer') {
+      console.log('Received offer, isInitiator:', isInitiator, 'isStarted:', isStarted);
+      if (!isInitiator && !isStarted) {
+        console.log('Not initiator, starting peer connection...');
+        maybeStart();
+      }
+      if (pc) {
+        let sessionDescription = new RTCSessionDescription(message);
+        pc.setRemoteDescription(sessionDescription).then(() => {
+          console.log('Remote description set, sending answer');
+          doAnswer();
+        }).catch(err => console.error('setRemoteDescription error:', err));
+      } else {
+        console.error('Received offer but peer connection not created yet');
+      }
+    } else if (message.type === 'answer' && isStarted) {
+      console.log('Received answer');
+      if (pc) {
+        let sessionDescription = new RTCSessionDescription(message);
+        pc.setRemoteDescription(sessionDescription).then(() => {
+          console.log('Answer remote description set');
+        }).catch(err => console.error('setRemoteDescription error:', err));
+      }
+    } else if (message.type === 'candidate' && isStarted) {
+      console.log('Received ICE candidate');
+      if (pc) {
+        var candidate = new RTCIceCandidate({
+          sdpMLineIndex: message.label,
+          candidate: message.candidate
+        });
+        pc.addIceCandidate(candidate).then(() => {
+          console.log('ICE candidate added');
+        }).catch(err => console.error('addIceCandidate error:', err));
+      }
+    }
+  });
+
+  // Create empty local stream for controller (controller doesn't send video)
+  gotStream(new MediaStream());
+}
+
+function gotStream(stream) {
+  console.log('Got local stream', stream);
+  console.log('Stream tracks:', stream.getTracks());
+  if (isInitiator) {
+    console.log('Initiator: calling maybeStart()');
+    maybeStart();
+  } else {
+    console.log('Not initiator: waiting for offer');
+  }
+}
+
+function maybeStart() {
+  if (!isStarted && isChannelReady && sessionActive) {
+    console.log('Creating peer connection');
+    createPeerConnection();
+    isStarted = true;
+    if (isInitiator) {
+      doCall();
+    }
+  }
+}
+
+function createPeerConnection() {
+  try {
+    pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
+
+    dataSendChannel = pc.createDataChannel('sendDataChannel');
+    dataSendChannel.onopen = function() {
+      console.log('Data channel opened');
+      setLiveState("green");
+      document.getElementById("liveText").textContent = "LIVE NOW";
+      controlEnabled = true;
+    };
+    dataSendChannel.onerror = function(error) {
+      console.error('Data channel error:', error);
+    };
+
+    pc.onicecandidate = function(event) {
+      if (event.candidate) {
+        sendMessage({
+          type: 'candidate',
+          label: event.candidate.sdpMLineIndex,
+          id: event.candidate.sdpMid,
+          candidate: event.candidate.candidate
+        });
+      }
+    };
+
+    pc.ontrack = function(event) {
+      console.log('Remote stream received', event);
+      console.log('Stream tracks:', event.streams[0]?.getTracks());
+      const remoteVideo = document.getElementById("remoteVideo");
+      const placeholder = document.querySelector('.video .placeholder');
+      
+      if (event.streams && event.streams.length > 0) {
+        remoteVideo.srcObject = event.streams[0];
+        remoteVideo.style.display = "block";
+        if (placeholder) placeholder.style.display = 'none';
+        updateStatusPanel('Stream', 'ok', 'Receiving');
+        setLiveState("green");
+        document.getElementById("liveText").textContent = "LIVE NOW";
+        console.log('Video stream attached to element');
+        
+        // Handle video load
+        remoteVideo.onloadedmetadata = function() {
+          console.log('Video metadata loaded, dimensions:', remoteVideo.videoWidth, 'x', remoteVideo.videoHeight);
+        };
+        
+        remoteVideo.onerror = function(e) {
+          console.error('Video element error:', e);
+        };
+      } else {
+        console.error('No streams in event:', event);
+      }
+    };
+
+    pc.onconnectionstatechange = function() {
+      console.log('Connection state:', pc.connectionState);
+      if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+        setLiveState("red");
+        document.getElementById("liveText").textContent = "CONNECTION LOST";
+      }
+    };
+
+    console.log('Created RTCPeerConnection');
+  } catch (e) {
+    console.error('Failed to create PeerConnection:', e);
+    setLiveState("red");
+    document.getElementById("liveText").textContent = "ERROR";
+  }
+}
+
+function doCall() {
+  pc.createOffer({
+    offerToReceiveAudio: false,
+    offerToReceiveVideo: true
+  }).then(setLocalAndSendMessage).catch(err => {
+    console.error('createOffer error:', err);
+  });
+}
+
+function doAnswer() {
+  pc.createAnswer({
+    offerToReceiveAudio: false,
+    offerToReceiveVideo: true
+  }).then(setLocalAndSendMessage).catch(err => {
+    console.error('createAnswer error:', err);
+  });
+}
+
+function setLocalAndSendMessage(sessionDescription) {
+  pc.setLocalDescription(sessionDescription).then(() => {
+    sendMessage(sessionDescription);
+  }).catch(err => {
+    console.error('setLocalDescription error:', err);
+  });
+}
+
+function sendMessage(message) {
+  if (socket && socket.connected) {
+    socket.emit('message', message);
+  }
+}
+
+function disconnectWebRTC() {
+  if (pc) {
+    pc.close();
+    pc = null;
+  }
+  if (socket) {
+    socket.emit('bye');
+    socket.disconnect();
+  }
+  isStarted = false;
+  isChannelReady = false;
+  controlEnabled = false;
+  updateStatusPanel('WebRTC', 'error', 'Disconnected');
+  updateStatusPanel('Stream', 'error', 'Lost');
+  const remoteVideo = document.getElementById("remoteVideo");
+  if (remoteVideo) {
+    remoteVideo.srcObject = null;
+    remoteVideo.style.display = "none";
+  }
+  const placeholder = document.querySelector('.video .placeholder');
+  if (placeholder) {
+    placeholder.style.display = 'block';
+  }
+}
+
+/* ===== INPUT CONTROL ===== */
+function sendInput(input) {
+  if (!dataSendChannel || dataSendChannel.readyState !== 'open' || !sessionActive || !controlEnabled) {
+    return;
+  }
+  try {
+    dataSendChannel.send(JSON.stringify(input));
+  } catch (e) {
+    console.error('Error sending input:', e);
+  }
+}
+
+function sendKeyDown(key) {
+  sendInput({ type: 'keydown', key: key });
+}
+
+function sendKeyUp(key) {
+  sendInput({ type: 'keyup', key: key });
+}
+
+function sendMouseDown(button) {
+  sendInput({ type: 'mousedown', button: button });
+}
+
+function sendMouseUp(button) {
+  sendInput({ type: 'mouseup', button: button });
+}
+
+// Track current key states to avoid sending duplicate events
+let currentKeys = {};
+
+/* ===== COMMAND SENDER (maps to WebRTC input) ===== */
+function sendCommand(cmd) {
+  if (!cmd || !cmd.action) return;
+  
+  // Map joystick commands to keyboard/mouse input
+  if (cmd.action === "move") {
+    // Movement joystick -> Arrow keys
+    const threshold = 0.1;
+    const keys = {
+      ArrowRight: cmd.x > threshold,
+      ArrowLeft: cmd.x < -threshold,
+      ArrowUp: cmd.y < -threshold,
+      ArrowDown: cmd.y > threshold
+    };
+    
+    // Send keydown for newly pressed keys
+    Object.keys(keys).forEach(key => {
+      if (keys[key] && !currentKeys[key]) {
+        sendKeyDown(key);
+        currentKeys[key] = true;
+      } else if (!keys[key] && currentKeys[key]) {
+        sendKeyUp(key);
+        currentKeys[key] = false;
+      }
+    });
+  } else if (cmd.action === "aim") {
+    // Aim joystick -> Mouse movement (relative to video center)
+    // For now, we'll use relative mouse movement
+    // This could be enhanced to map to actual mouse position on video
+    const remoteVideo = document.getElementById("remoteVideo");
+    if (remoteVideo && remoteVideo.srcObject) {
+      const rect = remoteVideo.getBoundingClientRect();
+      // Map joystick to center of video + offset
+      const centerX = 0.5 + (cmd.yaw * 0.3); // Limit movement range
+      const centerY = 0.5 + (cmd.pitch * 0.3);
+      sendInput({ type: 'mousemove', x: Math.max(0, Math.min(1, centerX)), y: Math.max(0, Math.min(1, centerY)) });
+    }
+  }
+}
+
+/* ===== JOYSTICKS ===== */
+let controlEnabled = true;
+
+const moveJoystick = nipplejs.create({
+  zone: document.getElementById('moveJoystick'),
+  mode: 'static',
+  position: { left: '50%', top: '50%' },
+  size: 96,
+  color: 'white'
+});
+
+const aimJoystick = nipplejs.create({
+  zone: document.getElementById('aimJoystick'),
+  mode: 'static',
+  position: { left: '50%', top: '50%' },
+  size: 96,
+  color: 'white'
+});
+
+moveJoystick.on('move', (evt, data) => {
+  if (!controlEnabled || !data) return;
+  const x = Math.cos(data.angle.radian) * (data.distance / 50);
+  const y = Math.sin(data.angle.radian) * (data.distance / 50);
+  sendCommand({ action: "move", x: +x.toFixed(2), y: +y.toFixed(2) });
+});
+
+moveJoystick.on('end', () => {
+  sendCommand({ action: "move", x: 0, y: 0 });
+});
+
+aimJoystick.on('move', (evt, data) => {
+  if (!controlEnabled || !data) return;
+  const yaw = Math.cos(data.angle.radian) * (data.distance / 50);
+  const pitch = Math.sin(data.angle.radian) * (data.distance / 50);
+  sendCommand({ action: "aim", yaw: +yaw.toFixed(2), pitch: +pitch.toFixed(2) });
+});
+
+aimJoystick.on('end', () => {
+  sendCommand({ action: "aim", yaw: 0, pitch: 0 });
+});
+
+// Video area mouse/touch input
+const remoteVideo = document.getElementById("remoteVideo");
+if (remoteVideo) {
+  remoteVideo.addEventListener('mousemove', function(e) {
+    if (!dataSendChannel || dataSendChannel.readyState !== 'open') return;
+    const rect = remoteVideo.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    sendInput({ type: 'mousemove', x: x, y: y });
+  });
+
+  remoteVideo.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    sendInput({ type: 'mousedown', button: e.button });
+  });
+
+  remoteVideo.addEventListener('mouseup', function(e) {
+    e.preventDefault();
+    sendInput({ type: 'mouseup', button: e.button });
+  });
+
+  remoteVideo.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = remoteVideo.getBoundingClientRect();
+    const x = (touch.clientX - rect.left) / rect.width;
+    const y = (touch.clientY - rect.top) / rect.height;
+    sendInput({ type: 'mousemove', x: x, y: y });
+    sendInput({ type: 'mousedown', button: 0 });
+  });
+
+  remoteVideo.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = remoteVideo.getBoundingClientRect();
+    const x = (touch.clientX - rect.left) / rect.width;
+    const y = (touch.clientY - rect.top) / rect.height;
+    sendInput({ type: 'mousemove', x: x, y: y });
+  });
+
+  remoteVideo.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    sendInput({ type: 'mouseup', button: 0 });
+  });
+
+  remoteVideo.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+}
+
+// Initialize WebRTC when Socket.IO is ready
+function initializeWhenReady() {
+  if (typeof io === 'undefined') {
+    // Socket.IO not loaded yet - this should not happen if loading worked
+    console.error('Socket.IO not available when trying to initialize WebRTC');
+    updateStatusPanel('WebRTC', 'error', 'Socket.IO not loaded');
+    setLiveState("red");
+    const liveText = document.getElementById("liveText");
+    if (liveText) {
+      liveText.textContent = "SOCKET.IO NOT LOADED";
+    }
+    return;
+  }
+  
+  // Socket.IO is loaded, initialize WebRTC
+  console.log('Socket.IO ready, initializing WebRTC...');
+  console.log('io object:', typeof io);
+  console.log('Signaling server:', SIGNALING_SERVER);
+  console.log('Room name:', ROOM_NAME);
+  
+  try {
+    initWebRTC();
+  } catch (error) {
+    console.error('Failed to initialize WebRTC:', error);
+    updateStatusPanel('WebRTC', 'error', 'Init failed');
+    setLiveState("red");
+    const liveText = document.getElementById("liveText");
+    if (liveText) {
+      liveText.textContent = "INIT ERROR: " + error.message;
+    }
+  }
+}
+
+// Callback when Socket.IO loads
+window.onSocketIOLoaded = function() {
+  console.log('Socket.IO loaded callback triggered');
+  updateStatusPanel('SocketIO', 'ok', 'Loaded');
+  const startStatus = document.getElementById("startStatus");
+  if (startStatus) {
+    startStatus.textContent = "Socket.IO loaded. Initializing WebRTC...";
+  }
+  // Small delay to ensure io is fully available
+  setTimeout(initializeWhenReady, 50);
+};
+
+// Start connection function - called when user clicks Start button
+window.startConnection = function() {
+  const startOverlay = document.getElementById("startOverlay");
+  const startButton = document.getElementById("startButton");
+  const startStatus = document.getElementById("startStatus");
+  
+  if (startOverlay) {
+    startOverlay.style.display = "none";
+  }
+  if (startButton) {
+    startButton.disabled = true;
+    startButton.textContent = "Starting...";
+  }
+  if (startStatus) {
+    startStatus.textContent = "Initializing connection...";
+  }
+  
+  // Update placeholder
+  const placeholder = document.querySelector('.video .placeholder');
+  if (placeholder) {
+    placeholder.textContent = "Connecting to video stream…";
+  }
+  
+  // MINIMAL TEST - Only Socket.IO connection
+  console.log('START CONNECTION clicked - running minimal Socket.IO test');
+  if (window.loadSocketIO) {
+    window.loadSocketIO();
+  } else {
+    alert('ERROR: loadSocketIO function not found');
+    if (startStatus) startStatus.textContent = "Error: loadSocketIO not found";
+  }
+};
+
+// Don't auto-initialize on page load - wait for user to click Start
+window.addEventListener('load', function() {
+  console.log('Page loaded - waiting for user to click Start button');
+  console.log('Socket.IO available:', typeof io !== 'undefined');
+  // Do nothing - wait for startConnection() to be called when user clicks Start
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+  disconnectWebRTC();
+});
+
+/* ===== END ===== */
+function endSession() {
+  disconnectWebRTC();
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

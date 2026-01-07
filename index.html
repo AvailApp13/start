@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>DriveAtHome — Live Control</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img src="assets/robomaster.png" alt="DJI RoboMaster S1" class="hero-image" />
+
+    <div class="hero-overlay">
+      <div class="system-title">CONTROL MODE</div>
+      <h1>УПРАВЛЯЙ НАСТОЯЩИМ<br>БОЕВЫМ РОБОТОМ</h1>
+      <p class="hero-sub">
+        Live-подключение к реальному DJI RoboMaster S1<br>
+        Не симуляция. Не запись.
+      </p>
+
+      <div class="status-line">
+        <span class="dot live"></span> LIVE CONNECTION
+        <span class="sep">•</span> REAL DEVICE
+        <span class="sep">•</span> FULL CONTROL
+      </div>
+    </div>
+  </section>
+
+  <!-- MODES -->
+  <section class="modes">
+    <div class="modes-title">LIVE ACCESS</div>
+    <div class="modes-sub">Choose session duration</div>
+
+    <!-- SESSION 5 -->
+    <div class="mode-card">
+      <div class="mode-info">
+        <div class="mode-name">SESSION 5 min.</div>
+        <div class="mode-desc">
+          • 50 shots<br>
+          • Live video<br>
+          • Full control
+        </div>
+      </div>
+
+      <div class="mode-actions">
+        <button class="info-btn" onclick="openInfo(5)">ⓘ</button>
+        <button class="connect-btn" onclick="startSession(5)">CONNECT</button>
+      </div>
+
+      <div class="mode-price">$2.99</div>
+    </div>
+
+    <!-- SESSION 10 -->
+    <div class="mode-card">
+      <div class="mode-info">
+        <div class="mode-name">SESSION 10 min.</div>
+        <div class="mode-desc">
+          • 100 shots<br>
+          • Live video<br>
+          • Full control
+        </div>
+      </div>
+
+      <div class="mode-actions">
+        <button class="info-btn" onclick="openInfo(10)">ⓘ</button>
+        <button class="connect-btn" onclick="startSession(10)">CONNECT</button>
+      </div>
+
+      <div class="mode-price">$4.99</div>
+    </div>
+  </section>
+
+  <!-- PROMO CODE ACCESS -->
+  <section class="modes">
+    <div class="modes-title">PROMO ACCESS</div>
+    <div class="modes-sub">Enter promo code for instant access</div>
+
+    <div class="mode-card">
+      <div class="mode-info">
+        <div class="mode-name">PROMO SESSION</div>
+        <div class="mode-desc">
+          • Time defined by promo code<br>
+          • One-time access<br>
+          • Full control
+        </div>
+      </div>
+
+      <input
+        id="promoInput"
+        type="text"
+        placeholder="Enter promo code"
+        style="
+          width: 100%;
+          margin-top: 12px;
+          padding: 12px;
+          background: transparent;
+          border: 1px solid #374151;
+          color: #e5e7eb;
+          font-size: 14px;
+        "
+      />
+
+      <div
+        id="promoMessage"
+        style="
+          margin-top: 8px;
+          font-size: 12px;
+          color: #9ca3af;
+        "
+      ></div>
+
+      <div class="mode-actions" style="margin-top: 12px;">
+        <button class="connect-btn" onclick="applyPromoCode()">CONNECT</button>
+      </div>
+    </div>
+  </section>
+<!-- DONATION GOAL -->
+<section class="modes">
+  <div class="modes-title">NEXT GOAL</div>
+  <div class="modes-sub">Unlock Robot Battle Mode</div>
+
+  <div class="mode-card" style="text-align:center;">
+    <div class="mode-name" style="margin-bottom:6px;">
+      🤖 SECOND ROBOMASTER
+    </div>
+
+    <div class="mode-desc">
+      • Live robot battles<br>
+      • PvP sessions<br>
+      • Viewer vs Viewer<br>
+      • Real robots, real action
+    </div>
+
+    <a
+      href="https://www.paypal.com/ncp/payment/JNFA2VGTJM2M2"
+      target="_blank"
+      class="connect-btn"
+      style="
+        display:block;
+        margin-top:14px;
+        text-decoration:none;
+      "
+    >
+      SUPPORT PROJECT
+    </a>
+
+    <div style="margin-top:8px;font-size:11px;color:#9ca3af;">
+      Goal: launch real robot battles
+    </div>
+  </div>
+</section>
+  <!-- INFO POPUP -->
+  <div id="infoOverlay" class="info-overlay" style="display:none;">
+    <div class="info-modal">
+      <div class="info-title">LIVE SESSION INFO</div>
+      <div id="infoText" class="info-text"></div>
+      <button class="info-close" onclick="closeInfo()">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    Powered by DJI RoboMaster S1 · Unofficial project<br>
+    <span class="test">TEST MODE — public access</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
