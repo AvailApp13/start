@@ -36,7 +36,49 @@
             background: rgba(0, 0, 0, 0.7);
             font-weight: 600;
         }
-        /* Адаптив кнопок для телефона */
+        /* Заголовок для соцсетей */
+        .connect-title {
+            text-align: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        /* Специальная кнопка YouTube */
+        .youtube-btn {
+            background: linear-gradient(135deg, #FF0000, #CC0000);
+            border-color: rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .youtube-btn:hover {
+            background: linear-gradient(135deg, #CC0000, #990000);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4);
+        }
+        /* Эффект "блеска" для YouTube кнопки */
+        .youtube-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 20%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 80%
+            );
+            transform: rotate(30deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+        .youtube-btn:hover::after {
+            opacity: 1;
+            left: 100%;
+        }
+        /* Адаптив */
         @media (max-width: 768px) {
             .language-switcher {
                 top: 15px;
@@ -45,6 +87,9 @@
             .lang-btn {
                 padding: 6px 12px;
                 font-size: 13px;
+            }
+            .connect-title {
+                font-size: 16px;
             }
         }
     </style>
@@ -67,6 +112,9 @@
             </p>
         </header>
 
+        <!-- ПРИЗЫВ К ДЕЙСТВИЮ -->
+        <h3 class="connect-title">Свяжитесь со мной:</h3>
+
         <!-- Кнопки соцсетей -->
         <div class="social-buttons">
             <a href="https://www.linkedin.com/in/emma-oates-ame-blu1883?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" class="social-button linkedin-btn">
@@ -80,6 +128,13 @@
             </a>
             <a href="https://www.instagram.com/ameblu_shamanic_practitioner?igsh=dGtvNnVzbzBuMTdy" class="social-button instagram-btn">
                 <i class="fab fa-instagram icon"></i> Instagram
+            </a>
+        </div>
+
+        <!-- Кнопка YouTube с отзывами -->
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="https://www.youtube.com/@ameblutarot2137" target="_blank" class="social-button youtube-btn">
+                <i class="fab fa-youtube icon"></i> Отзывы на YouTube
             </a>
         </div>
 
