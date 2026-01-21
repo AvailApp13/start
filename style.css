@@ -149,3 +149,25 @@ body {
     font-size: 20px;
   }
 }
+
+/* АДАПТИВ ДЛЯ ТЕЛЕФОНОВ */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+  .header img {
+    max-width: 150px !important; /* Логотип станет меньше */
+  }
+  .project-title {
+    font-size: 22px !important; /* Заголовок станет меньше */
+    line-height: 1.3;
+  }
+  .project-description {
+    font-size: 15px; /* Текст описания станет чуть меньше */
+    line-height: 1.6;
+  }
+  .social-button {
+    padding: 16px 20px; /* Кнопки станут компактнее */
+    font-size: 16px;
+  }
+}
