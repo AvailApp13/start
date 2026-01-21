@@ -1,3 +1,4 @@
+/* СБРОС И БАЗОВЫЕ СТИЛИ */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,222 +6,146 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
 }
 
+/* ОСНОВНОЙ ФОН САЙТА - ВАША КАРТИНКА */
 body {
-  background: radial-gradient(circle at top, #0b0e14, #05070c);
-  color: #e5e7eb;
-}
-
-/* HERO */
-.hero {
-  position: relative;
-  height: 420px;
-  overflow: hidden;
-}
-
-.hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.55) contrast(1.1);
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
+  background-image: url('assets/logo2.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: #fff;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  background: linear-gradient(to top, rgba(5,7,12,0.95), rgba(5,7,12,0.3));
 }
 
-.system-title {
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: #9ca3af;
-  margin-bottom: 8px;
+/* КОНТЕЙНЕР */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 40px;
 }
 
-.hero-overlay h1 {
-  font-size: 26px;
-  line-height: 1.15;
+/* ЗАГОЛОВОК И ОПИСАНИЕ */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.project-title {
+  font-size: 32px;
   font-weight: 700;
   margin-bottom: 10px;
+  color: #fff;
 }
 
-.hero-sub {
-  font-size: 13px;
-  color: #cbd5f5;
-  margin-bottom: 12px;
-}
-
-.status-line {
-  font-size: 12px;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #9ca3af;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.dot.live {
-  background: #ef4444;
-  box-shadow: 0 0 8px rgba(239,68,68,0.9);
-}
-
-.sep {
-  opacity: 0.4;
-}
-
-/* MODES */
-.modes {
-  padding: 20px;
-}
-
-.modes-title {
-  font-size: 14px;
-  letter-spacing: 2px;
-  margin-bottom: 4px;
-}
-
-.modes-sub {
-  font-size: 12px;
-  color: #9ca3af;
-  margin-bottom: 14px;
-}
-
-/* MODE CARD */
-.mode-card {
-  background: linear-gradient(180deg, #0f172a, #020617);
-  border: 1px solid #1f2937;
-  padding: 14px;
-  margin-bottom: 12px;
-  position: relative;
-}
-
-.mode-name {
-  font-size: 15px;
-  letter-spacing: 1px;
-  margin-bottom: 6px;
-}
-
-.mode-desc {
-  font-size: 12px;
-  color: #9ca3af;
+.project-description {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
 }
 
-.mode-actions {
+/* КНОПКИ СОЦСЕТЕЙ */
+.social-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 12px;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
 }
 
-/* BUTTONS */
-.info-btn {
-  width: 38px;
-  height: 38px;
-  border: 1px solid #374151;
-  background: transparent;
-  color: #9ca3af;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.connect-btn {
-  flex: 1;
-  border: 1px solid #00ff9c;
-  background: rgba(0,255,156,0.08);
-  color: #00ff9c;
-  font-size: 14px;
-  letter-spacing: 1px;
-  cursor: pointer;
-}
-
-.mode-price {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-/* POPUP */
-.info-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(2,6,23,0.85);
+.social-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  gap: 12px;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
-.info-modal {
-  width: 90%;
-  max-width: 360px;
-  background: #020617;
-  border: 1px solid #1f2937;
-  padding: 16px;
+.social-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-.info-title {
-  font-size: 14px;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
+/* ЦВЕТА ДЛЯ КАЖДОЙ КНОПКИ */
+.linkedin-btn {
+  background: rgba(10, 102, 194, 0.2);
+  border-color: rgba(10, 102, 194, 0.4);
+}
+.linkedin-btn:hover {
+  background: rgba(10, 102, 194, 0.3);
 }
 
-.info-text {
-  font-size: 12px;
-  color: #9ca3af;
-  line-height: 1.6;
-  margin-bottom: 14px;
+.facebook-btn {
+  background: rgba(24, 119, 242, 0.2);
+  border-color: rgba(24, 119, 242, 0.4);
+}
+.facebook-btn:hover {
+  background: rgba(24, 119, 242, 0.3);
 }
 
-.info-close {
-  width: 100%;
-  border: 1px solid #374151;
-  background: transparent;
-  color: #9ca3af;
-  padding: 10px;
-  cursor: pointer;
+.telegram-btn {
+  background: rgba(0, 136, 204, 0.2);
+  border-color: rgba(0, 136, 204, 0.4);
+}
+.telegram-btn:hover {
+  background: rgba(0, 136, 204, 0.3);
 }
 
-/* FOOTER */
+.instagram-btn {
+  background: rgba(193, 53, 132, 0.2);
+  border-color: rgba(193, 53, 132, 0.4);
+}
+.instagram-btn:hover {
+  background: rgba(193, 53, 132, 0.3);
+}
+
+/* ИКОНКИ */
+.icon {
+  font-size: 24px;
+}
+
+/* ФУТЕР */
 .footer {
   text-align: center;
-  font-size: 11px;
-  color: #6b7280;
+  margin-top: 40px;
   padding: 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.footer .test {
-  opacity: 0.7;
-}
-/* LIVE BLINKING DOT */
-.dot.live {
-  background: #ef4444;
-  box-shadow: 0 0 6px rgba(239,68,68,0.8);
-  animation: liveBlink 1.4s infinite;
-}
-
-@keyframes liveBlink {
-  0% {
-    opacity: 1;
-    box-shadow: 0 0 6px rgba(239,68,68,0.9);
+/* АДАПТИВ */
+@media (max-width: 768px) {
+  .project-title {
+    font-size: 28px;
   }
-  50% {
-    opacity: 0.25;
-    box-shadow: 0 0 2px rgba(239,68,68,0.3);
+  
+  .social-button {
+    padding: 16px 20px;
+    font-size: 16px;
   }
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 6px rgba(239,68,68,0.9);
+  
+  .icon {
+    font-size: 20px;
   }
 }
