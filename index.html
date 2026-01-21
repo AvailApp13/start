@@ -6,8 +6,49 @@
     <title>МОДАЛЬНОСТЬ "ЧАСЫ ВРЕМЕННОГО СБРОСА"</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Стили для кнопок переключения языка */
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+        }
+        /* Сдвигаем основной контент, чтобы кнопки не перекрывали */
+        .container {
+            position: relative;
+            padding-top: 60px;
+        }
+    </style>
 </head>
 <body>
+    <!-- КНОПКИ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА -->
+    <div class="language-switcher">
+        <a href="index.html" class="lang-btn active">РУС</a>
+        <a href="en.html" class="lang-btn">ENG</a>
+    </div>
+
     <div class="container">
         <!-- ЛОГОТИП И НАЗВАНИЕ -->
         <header class="header">
@@ -41,7 +82,7 @@
 
         <!-- ФУТЕР -->
         <footer class="footer">
-            <p>© 2024 МОДАЛЬНОСТЬ "ЧАСЫ ВРЕМЕННОГО СБРОСА". Все права защищены. | <a href="en.html" style="color: rgba(255, 255, 255, 0.7);">English version</a></p>
+            <p>© 2024 МОДАЛЬНОСТЬ "ЧАСЫ ВРЕМЕННОГО СБРОСА". Все права защищены.</p>
         </footer>
     </div>
 </body>
