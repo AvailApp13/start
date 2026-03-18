@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIVE ELITE ENTERTAINMENT BALI</title>
+  <meta name="description" content="Luxury Event Organizer & Artist Management in Bali" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <div class="ambient ambient-c"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#home" class="brand" aria-label="FIVE ELITE ENTERTAINMENT BALI">
+        <img src="assets/logo.jpeg" alt="FIVE ELITE ENTERTAINMENT BALI logo" class="brand-logo" />
+        <div class="brand-copy">
+          <span class="brand-title">FIVE ELITE</span>
+          <span class="brand-sub">ENTERTAINMENT BALI</span>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#about" data-i18n="nav.about">About</a>
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <a href="#gallery" data-i18n="nav.gallery">Gallery</a>
+        <a href="#contact" data-i18n="nav.contact">Contact</a>
+      </nav>
+
+      <div class="lang-wrap">
+        <label for="language" data-i18n="nav.language">Language</label>
+        <select id="language" class="lang-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+          <option value="id">Bahasa Indonesia</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero container">
+      <div class="hero-copy reveal">
+        <div class="eyebrow" data-i18n="hero.kicker">Luxury Event Organizer & Artist Management in Bali</div>
+        <h1 class="hero-title">
+          <span data-i18n="hero.title1">Creating</span>
+          <span class="hero-gradient" data-i18n="hero.title2">Memorable Events</span>
+          <span data-i18n="hero.title3">& Professional Entertainment</span>
+        </h1>
+        <p class="hero-text" data-i18n="hero.text">
+          Premium event experiences for tourists, corporate clients, luxury audiences, clubs, and restaurants — shaped with refined Bali atmosphere, elegant execution, and subtle wow-effect.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#services" class="btn btn-primary" data-i18n="hero.primary">Explore Services</a>
+          <a href="#contact" class="btn btn-secondary" data-i18n="hero.secondary">Contact Us</a>
+        </div>
+
+        <div class="chip-row">
+          <span class="chip">Luxury</span>
+          <span class="chip">Bali Mood</span>
+          <span class="chip">High-End Service</span>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal">
+        <div class="hero-ring"></div>
+        <div class="photo-card photo-one">
+          <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=80" alt="Luxury event dinner setup" />
+        </div>
+        <div class="photo-card photo-two">
+          <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=900&q=80" alt="Elegant wedding scene in tropical setting" />
+        </div>
+        <div class="photo-card photo-three">
+          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80" alt="Night event with crowd and lights" />
+        </div>
+        <div class="hero-glass">
+          <div class="stat">
+            <strong>EO</strong>
+            <span data-i18n="hero.stat1">Luxury event planning</span>
+          </div>
+          <div class="stat">
+            <strong>AM</strong>
+            <span data-i18n="hero.stat2">Artist management</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section compact container" id="about">
+      <div class="section-top reveal">
+        <div class="eyebrow">01</div>
+        <h2 class="section-title" data-i18n="about.title">A premium Bali brand for events and entertainment</h2>
+      </div>
+      <div class="about-grid">
+        <p class="lead reveal" data-i18n="about.text">
+          FIVE ELITE ENTERTAINMENT BALI is an Event Organizer and Artist Management company creating polished, memorable, and visually refined experiences in Bali.
+        </p>
+        <div class="info-panel reveal">
+          <div class="info-item">
+            <span class="info-label" data-i18n="about.label1">Who we serve</span>
+            <p data-i18n="about.value1">Tourists, corporate clients, premium private clients, clubs, and restaurants.</p>
+          </div>
+          <div class="info-item">
+            <span class="info-label" data-i18n="about.label2">Brand feeling</span>
+            <p data-i18n="about.value2">Dark luxury, tropical glow, cinematic movement, and elegant detail.</p>
+          </div>
+          <div class="info-item">
+            <span class="info-label" data-i18n="about.label3">Based in</span>
+            <p>Bali, Indonesia</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section compact container" id="services">
+      <div class="section-top reveal">
+        <div class="eyebrow">02</div>
+        <h2 class="section-title" data-i18n="services.title">Services</h2>
+      </div>
+
+      <div class="services-grid">
+        <article class="service-card reveal">
+          <div class="service-line"></div>
+          <h3 data-i18n="services.eoTitle">Event Organizer Services</h3>
+          <ul>
+            <li data-i18n="services.eo1">Event concept planning</li>
+            <li data-i18n="services.eo2">Venue and decoration management</li>
+            <li data-i18n="services.eo3">Entertainment and artist booking</li>
+            <li data-i18n="services.eo4">Event logistics coordination</li>
+            <li data-i18n="services.eo5">Budget management</li>
+            <li data-i18n="services.eo6">On-site problem solving and event handling</li>
+          </ul>
+        </article>
+
+        <article class="service-card reveal">
+          <div class="service-line"></div>
+          <h3 data-i18n="services.amTitle">Artist Management Services</h3>
+          <ul>
+            <li data-i18n="services.am1">Artist career development</li>
+            <li data-i18n="services.am2">Scheduling and activity management</li>
+            <li data-i18n="services.am3">Brand endorsements and opportunities</li>
+            <li data-i18n="services.am4">Contract and fee negotiation</li>
+            <li data-i18n="services.am5">Branding and promotion strategy</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section compact container" id="gallery">
+      <div class="section-top reveal">
+        <div class="eyebrow">03</div>
+        <h2 class="section-title" data-i18n="gallery.title">Atmosphere & Event Mood</h2>
+        <p class="section-text" data-i18n="gallery.text">Temporary internet-sourced mood images are added now and can be replaced later with real event photos.</p>
+      </div>
+
+      <div class="gallery-grid">
+        <figure class="gallery-card tall reveal">
+          <img src="https://images.unsplash.com/photo-1519167758481-83f29c0b824f?auto=format&fit=crop&w=900&q=80" alt="Elegant event table" />
+          <figcaption data-i18n="gallery.item1">Private celebrations</figcaption>
+        </figure>
+        <figure class="gallery-card reveal">
+          <img src="https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=900&q=80" alt="Bali luxury scene" />
+          <figcaption data-i18n="gallery.item2">Bali luxury mood</figcaption>
+        </figure>
+        <figure class="gallery-card reveal">
+          <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80" alt="Live performance stage lights" />
+          <figcaption data-i18n="gallery.item3">Artist energy</figcaption>
+        </figure>
+        <figure class="gallery-card wide reveal">
+          <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1400&q=80" alt="Corporate event dinner" />
+          <figcaption data-i18n="gallery.item4">Corporate & premium gatherings</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section compact container" id="contact">
+      <div class="section-top reveal">
+        <div class="eyebrow">04</div>
+        <h2 class="section-title" data-i18n="contact.title">Contact</h2>
+        <p class="section-text" data-i18n="contact.text">All contact buttons are clickable.</p>
+      </div>
+
+      <div class="contact-grid reveal">
+        <a class="contact-pill" href="https://wa.me/628133823820" target="_blank" rel="noreferrer">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.7 17.2L2 22l4.9-1.6A11 11 0 1 0 20.5 3.5Zm-8.4 17a9 9 0 0 1-4.6-1.2l-.3-.2-2.9.9.9-2.8-.2-.3a9 9 0 1 1 7.1 3.6Zm4.9-6.7c-.3-.1-1.8-.9-2-.9-.3-.1-.5-.1-.7.2l-.6.8c-.2.2-.4.2-.7.1a7.3 7.3 0 0 1-3.5-3.1c-.2-.3 0-.5.1-.7l.5-.6c.1-.2.2-.4.3-.6.1-.1 0-.3 0-.5l-.9-2.1c-.2-.4-.4-.4-.7-.4h-.6c-.2 0-.5.1-.7.4a3.1 3.1 0 0 0-1 2.3c0 1.3.9 2.5 1.1 2.7.1.2 2 3.1 5 4.3.7.3 1.2.4 1.7.5.7.1 1.3.1 1.8.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3Z"/></svg>
+          </span>
+          <span>
+            <strong>WhatsApp</strong>
+            <small>+62 813-3823-820</small>
+          </span>
+        </a>
+
+        <a class="contact-pill" href="https://instagram.com/fiveeliteentertainmentbali" target="_blank" rel="noreferrer">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2.2A2.8 2.8 0 0 0 4.2 7v10A2.8 2.8 0 0 0 7 19.8h10a2.8 2.8 0 0 0 2.8-2.8V7A2.8 2.8 0 0 0 17 4.2H7Zm10.5 1.6a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2.2A2.8 2.8 0 1 0 12 15a2.8 2.8 0 0 0 0-5.6Z"/></svg>
+          </span>
+          <span>
+            <strong>Instagram</strong>
+            <small>@fiveeliteentertainmentbali</small>
+          </span>
+        </a>
+
+        <a class="contact-pill" href="mailto:limabersamcreativegroup@gmail.com">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v.3l9 5.6 9-5.6V7H3Zm18 10V9.7l-8.5 5.3a1 1 0 0 1-1 0L3 9.7V17h18Z"/></svg>
+          </span>
+          <span>
+            <strong>Email</strong>
+            <small>limabersamcreativegroup@gmail.com</small>
+          </span>
+        </a>
+
+        <a class="contact-pill" href="https://maps.app.goo.gl/egYfEdUwfruaQrhD8?g_st=ipc" target="_blank" rel="noreferrer">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 4.8-5.4 11.4-6.1 12.2a1.2 1.2 0 0 1-1.8 0C10.4 20.4 5 13.8 5 9a7 7 0 0 1 7-7Zm0 9.5A2.5 2.5 0 1 0 12 6.5a2.5 2.5 0 0 0 0 5Z"/></svg>
+          </span>
+          <span>
+            <strong>Location</strong>
+            <small>Denpasar, Bali</small>
+          </span>
+        </a>
+      </div>
+
+      <div class="address reveal">
+        <span data-i18n="contact.addressLabel">Address:</span>
+        <a href="https://maps.app.goo.gl/egYfEdUwfruaQrhD8?g_st=ipc" target="_blank" rel="noreferrer">
+          86MV+R5F, Gg. Cengana Sari III, Sumerta Kelod, Kec. Denpasar Tim., Kota Denpasar, Bali 80239
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>FIVE ELITE ENTERTAINMENT BALI</p>
+      <span data-i18n="footer.text">Creating memorable events & professional entertainment</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
