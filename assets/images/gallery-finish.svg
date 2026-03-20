@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="520" viewBox="0 0 540 420">
+<defs>
+<linearGradient id="bg" x1="0" x2="1">
+<stop offset="0" stop-color="#f7f7f3"/><stop offset="1" stop-color="#ece8de"/>
+</linearGradient>
+</defs>
+<rect width="540" height="420" fill="url(#bg)"/>
+<circle cx="470" cy="62" r="88" fill="#d0a341" opacity=".12"/>
+<circle cx="74" cy="352" r="100" fill="#293847" opacity=".07"/>
+<rect x="88" y="86" width="344" height="236" rx="24" fill="#edf1f5" stroke="#cad2db" stroke-width="8"/><rect x="118" y="118" width="134" height="172" rx="18" fill="#d0a341" opacity=".85"/><path d="M302 141h92M302 180h72M302 219h92M302 258h54" stroke="#314354" stroke-width="14" stroke-linecap="round"/>
+<rect x="32" y="28" width="180" height="48" rx="18" fill="rgba(255,255,255,.78)"/>
+<text x="52" y="60" fill="#293847" font-size="28" font-family="Arial" font-weight="700">ОТДЕЛКА</text>
+</svg>

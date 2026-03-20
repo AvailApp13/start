@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="520" viewBox="0 0 540 420">
+<defs>
+<linearGradient id="bg" x1="0" x2="1">
+<stop offset="0" stop-color="#f7f7f3"/><stop offset="1" stop-color="#ece8de"/>
+</linearGradient>
+</defs>
+<rect width="540" height="420" fill="url(#bg)"/>
+<circle cx="470" cy="62" r="88" fill="#d0a341" opacity=".12"/>
+<circle cx="74" cy="352" r="100" fill="#253342" opacity=".07"/>
+<rect x="60" y="250" width="420" height="95" rx="20" fill="#2e3e4f"/><rect x="92" y="214" width="356" height="56" rx="12" fill="#d0a341"/><path d="M110 250l40-76h244l44 76" fill="#7c8d9b" opacity=".45"/>
+<rect x="32" y="28" width="180" height="48" rx="18" fill="rgba(255,255,255,.78)"/>
+<text x="52" y="60" fill="#253342" font-size="28" font-family="Arial" font-weight="700">ФУНДАМЕНТ</text>
+</svg>
