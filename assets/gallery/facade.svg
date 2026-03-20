@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#eef0f2"/>
+    <stop offset="100%" stop-color="#d6dce2"/>
+  </linearGradient>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect width="1200" height="900" fill="url(#bg)"/>
+<g opacity="0.15" stroke="#fff" fill="none">
+  <path d="M60 120h240v110H60zM340 120h160v110H340zM540 120h280v110H540zM860 120h280v110H860z"/>
+  <path d="M60 270h130v90H60zM220 270h210v90H220zM460 270h210v90H460zM700 270h150v90H700zM880 270h260v90H880z"/>
+</g>
+
+<rect y="590" width="1200" height="150" fill="#cfc6b8"/>
+<rect x="210" y="140" width="780" height="450" rx="28" fill="#f5f6f7" filter="url(#shadow)"/>
+<g fill="#d9dde1">
+  <rect x="260" y="190" width="190" height="150" rx="14"/>
+  <rect x="500" y="190" width="190" height="150" rx="14"/>
+  <rect x="740" y="190" width="190" height="150" rx="14"/>
+  <rect x="260" y="380" width="670" height="160" rx="14"/>
+</g>
+<g stroke="#c8972b" stroke-width="8" opacity=".7">
+  <path d="M465 176v378M705 176v378M248 354h700"/>
+</g>
+<g stroke="#18212b" stroke-width="8" opacity=".5">
+  <path d="M180 180v420M1030 180v420"/>
+  <path d="M150 190h60M150 260h60M150 330h60M150 400h60M150 470h60"/>
+  <path d="M1030 190h60M1030 260h60M1030 330h60M1030 400h60M1030 470h60"/>
+</g>
+
+<rect x="48" y="700" width="1104" height="152" rx="28" fill="rgba(255,255,255,0.82)"/>
+<text x="88" y="770" font-family="Arial, sans-serif" font-size="52" font-weight="700" fill="#18212b">Фасады</text>
+<text x="88" y="815" font-family="Arial, sans-serif" font-size="28" fill="#5f6772">Монтаж фасадных систем и внешняя отделка</text>
+</svg>

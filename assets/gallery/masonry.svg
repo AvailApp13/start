@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#efe9e3"/>
+    <stop offset="100%" stop-color="#d1c3ba"/>
+  </linearGradient>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect width="1200" height="900" fill="url(#bg)"/>
+<g opacity="0.15" stroke="#fff" fill="none">
+  <path d="M60 120h240v110H60zM340 120h160v110H340zM540 120h280v110H540zM860 120h280v110H860z"/>
+  <path d="M60 270h130v90H60zM220 270h210v90H220zM460 270h210v90H460zM700 270h150v90H700zM880 270h260v90H880z"/>
+</g>
+
+<rect y="530" width="1200" height="210" fill="#d7b07d"/>
+<g filter="url(#shadow)">
+  <rect x="170" y="200" width="860" height="360" rx="22" fill="#bf6e43"/>
+  <g fill="#cc7d4e">
+    <rect x="200" y="230" width="160" height="60" rx="8"/>
+    <rect x="390" y="230" width="160" height="60" rx="8"/>
+    <rect x="580" y="230" width="160" height="60" rx="8"/>
+    <rect x="770" y="230" width="160" height="60" rx="8"/>
+    <rect x="295" y="310" width="160" height="60" rx="8"/>
+    <rect x="485" y="310" width="160" height="60" rx="8"/>
+    <rect x="675" y="310" width="160" height="60" rx="8"/>
+    <rect x="200" y="390" width="160" height="60" rx="8"/>
+    <rect x="390" y="390" width="160" height="60" rx="8"/>
+    <rect x="580" y="390" width="160" height="60" rx="8"/>
+    <rect x="770" y="390" width="160" height="60" rx="8"/>
+  </g>
+  <g stroke="#f3e5d6" stroke-width="10">
+    <path d="M180 300h840M180 380h840M180 460h840"/>
+    <path d="M280 210v340M470 210v340M660 210v340M850 210v340"/>
+  </g>
+</g>
+<g>
+  <circle cx="960" cy="190" r="38" fill="#f0b400"/>
+  <rect x="922" y="228" width="76" height="126" rx="18" fill="#202935"/>
+  <rect x="886" y="316" width="110" height="18" rx="9" fill="#d8dce1" transform="rotate(-18 886 316)"/>
+</g>
+
+<rect x="48" y="700" width="1104" height="152" rx="28" fill="rgba(255,255,255,0.82)"/>
+<text x="88" y="770" font-family="Arial, sans-serif" font-size="52" font-weight="700" fill="#18212b">Кладочные работы</text>
+<text x="88" y="815" font-family="Arial, sans-serif" font-size="28" fill="#5f6772">Кладка блока, кирпич, стены и перегородки</text>
+</svg>
