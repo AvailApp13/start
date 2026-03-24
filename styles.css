@@ -646,20 +646,20 @@ body{
 
 /* v6 lighter global background, softer construction underlay */
 body{
-  background:linear-gradient(180deg,#edf2f6 0%, #dbe5ee 100%);
+  background:linear-gradient(180deg,#505c69 0%, #667382 100%);
 }
 .page-bg{
   background:
-    radial-gradient(circle at 14% 10%, rgba(216,180,61,.06), transparent 24%),
-    radial-gradient(circle at 86% 18%, rgba(155,196,92,.045), transparent 26%),
-    linear-gradient(180deg,#edf2f6 0%, #dbe5ee 100%);
+    radial-gradient(circle at 14% 10%, rgba(216,180,61,.045), transparent 24%),
+    radial-gradient(circle at 86% 18%, rgba(155,196,92,.035), transparent 26%),
+    linear-gradient(180deg,#505c69 0%, #667382 100%);
 }
 .header{
-  background:rgba(236,242,247,.82);
+  background:rgba(63,72,83,.66);
 }
 .hero-bg{
-  opacity:.24;
-  filter:grayscale(.08) contrast(.92) brightness(1.06);
+  opacity:.16;
+  filter:grayscale(.14) contrast(.86) brightness(1.22);
 }
 .strip-card,
 .service-card,
@@ -680,24 +680,16 @@ body{
 }
 @media (max-width:760px){
   body{
-    background:linear-gradient(180deg,#eef3f7 0%, #dce6ee 100%);
+    background:linear-gradient(180deg,#5a6674 0%, #6f7d8c 100%);
   }
   .page-bg{
     background:
-      radial-gradient(circle at 14% 10%, rgba(216,180,61,.05), transparent 24%),
-      radial-gradient(circle at 86% 18%, rgba(155,196,92,.035), transparent 26%),
-      linear-gradient(180deg,#eef3f7 0%, #dce6ee 100%);
+      radial-gradient(circle at 14% 10%, rgba(216,180,61,.04), transparent 24%),
+      radial-gradient(circle at 86% 18%, rgba(155,196,92,.03), transparent 26%),
+      linear-gradient(180deg,#5a6674 0%, #6f7d8c 100%);
   }
   .hero-bg{
-    opacity:.20;
-    filter:grayscale(.08) contrast(.9) brightness(1.04);
+    opacity:.13;
+    filter:grayscale(.14) contrast(.84) brightness(1.18);
   }
-}
-
-
-/* light architectural background refinement */
-.page-decor{
-  background:
-    radial-gradient(circle at 12% 8%, rgba(216,180,61,.06), transparent 26%),
-    radial-gradient(circle at 88% 18%, rgba(155,196,92,.05), transparent 24%);
 }
