@@ -1,11 +1,11 @@
 
-const menuBtn = document.querySelector('.menu-btn');
+const menuBtn = document.querySelector('.menu-btn') || document.querySelector('.menu-toggle');
 const mobileNav = document.querySelector('.mobile-nav');
-if (menuBtn) {
+if (menuBtn && mobileNav) {
   menuBtn.addEventListener('click', () => mobileNav.classList.toggle('open'));
 }
 document.querySelectorAll('.mobile-nav a').forEach(link => {
-  link.addEventListener('click', () => mobileNav.classList.remove('open'));
+  link.addEventListener('click', () => mobileNav && mobileNav.classList.remove('open'));
 });
 
 const phone = document.getElementById('phone');
@@ -29,9 +29,7 @@ document.querySelectorAll('.method-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.method-btn').forEach(x => x.classList.remove('active'));
     btn.classList.add('active');
-    if (methodInput) {
-      methodInput.value = btn.dataset.value;
-    }
+    if (methodInput) methodInput.value = btn.dataset.value;
   });
 });
 

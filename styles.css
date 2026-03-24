@@ -1010,3 +1010,35 @@ body{
     grid-template-columns:1fr !important;
   }
 }
+
+
+/* mobile menu + button contrast fix */
+.method-btn.active,
+.method-btn:active{
+  color:#1f2b36 !important;
+  font-weight:800 !important;
+  border-color:rgba(88,115,35,.42) !important;
+  background:linear-gradient(135deg, rgba(216,180,61,.34), rgba(165,201,90,.32)) !important;
+  box-shadow:0 6px 16px rgba(155,196,92,.16) !important;
+}
+
+.btn-primary,
+.btn-primary:visited{
+  color:#1f2b36 !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active{
+  color:#16212b !important;
+  background:linear-gradient(135deg, #d9ba42, #9fcb58) !important;
+}
+
+.menu-toggle,
+.menu-btn{
+  cursor:pointer !important;
+}
+
+.mobile-nav.open{
+  display:grid !important;
+}
