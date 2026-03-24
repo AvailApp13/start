@@ -24,12 +24,14 @@ if (phone) {
   });
 }
 
-const methodInput = document.getElementById('contactMethod');
+const methodInput = document.getElementById('method') || document.getElementById('contactMethod');
 document.querySelectorAll('.method-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.method-btn').forEach(x => x.classList.remove('active'));
     btn.classList.add('active');
-    methodInput.value = btn.dataset.value;
+    if (methodInput) {
+      methodInput.value = btn.dataset.value;
+    }
   });
 });
 
@@ -40,15 +42,21 @@ if (form) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const fullname = document.getElementById('fullname').value.trim();
-    const phoneValue = document.getElementById('phone').value.trim();
-    const contactMethod = document.getElementById('contactMethod').value.trim();
-    const note = document.getElementById('note').value.trim();
+    const nameField = document.getElementById('fullname') || document.getElementById('name');
+    const methodField = document.getElementById('contactMethod') || document.getElementById('method');
+    const noteField = document.getElementById('note');
+
+    const fullname = nameField ? nameField.value.trim() : '';
+    const phoneValue = phone ? phone.value.trim() : '';
+    const contactMethod = methodField ? methodField.value.trim() : '';
+    const note = noteField ? noteField.value.trim() : '';
     const digits = phoneValue.replace(/\D/g, '');
 
     if (!fullname || !contactMethod || !phoneValue.startsWith('+7') || digits.length !== 11) {
-      msg.textContent = 'Проверьте форму: укажите ФИО, телефон с +7 и желаемый формат связи.';
-      msg.className = 'form-message show error';
+      if (msg) {
+        msg.textContent = 'Проверьте форму: укажите ФИО, телефон с +7 и желаемый формат связи.';
+        msg.className = 'form-message show error';
+      }
       return;
     }
 
@@ -65,8 +73,10 @@ if (form) {
     const text = encodeURIComponent(lines.join('\n'));
     const url = `https://wa.me/${whatsappNumber}?text=${text}`;
 
-    msg.textContent = 'Открываем WhatsApp с готовой заявкой...';
-    msg.className = 'form-message show ok';
+    if (msg) {
+      msg.textContent = 'Открываем WhatsApp с готовой заявкой...';
+      msg.className = 'form-message show ok';
+    }
 
     window.open(url, '_blank');
   });
