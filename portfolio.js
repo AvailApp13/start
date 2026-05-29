@@ -219,7 +219,7 @@
 
   /* ── ФИЛЬТРЫ ───────────────────────────────────────────── */
   function buildFilterButtons(filters) {
-    var wrap = document.getElementById('filterButtons');
+    var wrap = document.getElementById('galleryFilter') || document.getElementById('filterButtons');
     if (!wrap) return;
     wrap.innerHTML = '';
 
@@ -239,7 +239,7 @@
   }
 
   function initFilters() {
-    var wrap = document.getElementById('filterButtons');
+    var wrap = document.getElementById('galleryFilter') || document.getElementById('filterButtons');
     if (!wrap) return;
     wrap.addEventListener('click', function (e) {
       var btn = e.target.closest ? e.target.closest('.filter-btn') : e.target;
