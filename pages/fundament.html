@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Фундаменты — Феликс ДВ</title>
+  <meta name="description" content="Портфолио работ по фундаментам — Феликс ДВ, Владивосток">
+  <link rel="icon" href="../assets/images/logo-felixdv.png">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../portfolio.css">
+</head>
+<body>
+  <div class="page-decor"></div>
+
+  <header class="header">
+    <div class="container nav">
+      <a href="../index.html" class="brand">
+        <img src="../assets/images/logo-felixdv.png" alt="Феликс ДВ">
+        <span class="brand-text">ФеликсДВ</span>
+      </a>
+      <nav class="nav-links">
+        <a href="../index.html#services">Услуги</a>
+        <a href="../index.html#advantages">Преимущества</a>
+        <a href="../index.html#contacts">Контакты</a>
+      </nav>
+      <a href="../index.html#lead" class="btn btn-primary desktop-cta">Оставить заявку</a>
+      <button class="menu-toggle" type="button" aria-label="Меню"><span></span><span></span><span></span></button>
+    </div>
+    <div class="mobile-nav">
+      <a href="../index.html#services">Услуги</a>
+      <a href="../index.html#advantages">Преимущества</a>
+      <a href="../index.html#contacts">Контакты</a>
+      <a href="../index.html#lead" class="btn btn-primary">Оставить заявку</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="portfolio-hero" data-category="fundament">
+      <div class="portfolio-hero-bg">
+        <div class="portfolio-hero-gradient"></div>
+      </div>
+      <div class="container portfolio-hero-content">
+        <a href="../index.html" class="back-btn">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Назад
+        </a>
+        <div class="portfolio-hero-icon">🏗</div>
+        <span class="eyebrow">наши работы</span>
+        <h1>Фундаменты <span>и монолит</span></h1>
+        <p>Фундаменты любых типов, подпорные стены, плиты перекрытия, монолитные конструкции</p>
+        <div class="portfolio-stats">
+          <div class="stat"><strong id="stat-count">0+</strong><span>объектов</span></div>
+          <div class="stat"><strong>7 лет</strong><span>опыта</span></div>
+          <div class="stat"><strong>100%</strong><span>гарантия</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORY TABS -->
+    <section class="portfolio-nav-section">
+      <div class="container">
+        <div class="portfolio-category-tabs">
+          <a href="fundament.html" class="tab-btn active">🏗 Фундаменты</a>
+          <a href="kladka.html" class="tab-btn">🧱 Кладка</a>
+          <a href="krovlya.html" class="tab-btn">🏠 Кровля</a>
+          <a href="otdelka.html" class="tab-btn">✨ Отделка</a>
+          <a href="zabory.html" class="tab-btn">🚧 Заборы</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY SECTION -->
+    <section class="portfolio-gallery-section section">
+      <div class="container">
+        <div class="gallery-header">
+          <div>
+            <span class="eyebrow">портфолио</span>
+            <h2>Наши объекты</h2>
+          </div>
+          <div class="gallery-filter" id="galleryFilter">
+            <button class="filter-btn active" data-filter="all">Все работы</button>
+            <button class="filter-btn" data-filter="monolith">Монолит</button>
+            <button class="filter-btn" data-filter="strip">Ленточный</button>
+            <button class="filter-btn" data-filter="pile">Свайный</button>
+          </div>
+        </div>
+
+        <!-- Gallery grid — заполняется из JS на основе массива PROJECTS -->
+        <div class="masonry-grid" id="galleryGrid">
+          <!-- JS рендерит карточки -->
+        </div>
+
+        <!-- Пустое состояние (пока нет фото) -->
+        <div class="gallery-empty" id="galleryEmpty">
+          <div class="empty-icon">📸</div>
+          <h3>Фотографии скоро появятся</h3>
+          <p>Мы добавляем фото наших объектов. Пока вы можете связаться с нами для получения актуального портфолио.</p>
+          <a href="../index.html#lead" class="btn btn-primary">Получить портфолио</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="portfolio-cta section dark-band">
+      <div class="container portfolio-cta-inner">
+        <div>
+          <span class="eyebrow">готовы начать?</span>
+          <h2>Рассчитаем стоимость фундамента бесплатно</h2>
+          <p>Выедем на объект, сделаем замер и составим детальную смету без скрытых платежей.</p>
+        </div>
+        <div class="cta-actions">
+          <a href="../index.html#lead" class="btn btn-primary">Оставить заявку</a>
+          <a href="tel:+79140698485" class="btn btn-secondary">+7 914 069-84-85</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото">
+    <button class="lightbox-close" id="lbClose" aria-label="Закрыть">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M4 4L24 24M24 4L4 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
+    <button class="lightbox-arrow lightbox-prev" id="lbPrev" aria-label="Предыдущее">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M18 4L8 14L18 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="lightbox-img-wrap">
+      <img src="" alt="" id="lbImg" class="lightbox-img">
+      <div class="lightbox-spinner" id="lbSpinner"></div>
+    </div>
+    <button class="lightbox-arrow lightbox-next" id="lbNext" aria-label="Следующее">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M10 4L20 14L10 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="lightbox-caption" id="lbCaption"></div>
+    <div class="lightbox-counter" id="lbCounter"></div>
+  </div>
+  <div class="lightbox-overlay" id="lbOverlay"></div>
+
+  <script src="../script.js"></script>
+  <script src="../portfolio.js"></script>
+  <script>
+    // =====================================================
+    // ДАННЫЕ ДЛЯ ЭТОЙ СТРАНИЦЫ
+    // Когда загружаете фото — добавляйте их СЮДА в массив
+    // =====================================================
+    window.PORTFOLIO_CONFIG = {
+      category: 'fundament',
+      title: 'Фундаменты',
+      statLabel: 'объектов',
+      // Фильтры (совпадают с data-filter на кнопках выше)
+      filters: {
+        'monolith': 'Монолитный',
+        'strip': 'Ленточный',
+        'pile': 'Свайный'
+      },
+      // МАССИВ ПРОЕКТОВ
+      // Добавляйте сюда объекты, когда загружаете фото
+      // src — путь к файлу от корня сайта
+      // tags — массив фильтров (должны совпадать с ключами filters выше)
+      projects: [
+        // ПРИМЕР (раскомментируйте и замените на реальные данные):
+        // {
+        //   src: '../assets/projects/fundament/foto1.jpg',
+        //   title: 'Монолитный фундамент, ул. Светланская',
+        //   desc: 'Монолитная плита 12×8м, армирование, гидроизоляция',
+        //   tags: ['monolith'],
+        //   size: 'large'   // 'large' | 'medium' | 'small'
+        // },
+        // {
+        //   src: '../assets/projects/fundament/foto2.jpg',
+        //   title: 'Ленточный фундамент',
+        //   desc: 'Глубокого заложения, 2024',
+        //   tags: ['strip'],
+        //   size: 'medium'
+        // },
+      ]
+    };
+  </script>
+</body>
+</html>
