@@ -1,313 +1,410 @@
 /* ============================================================
-   PORTFOLIO.JS — движок галереи Феликс ДВ
-   Читает window.PORTFOLIO_CONFIG и рендерит всё автоматически
+   PORTFOLIO.JS — движок галереи Феликс ДВ v2.0
+   Загружает изображения из JSON-манифестов автоматически.
+   Пользователь кладёт фото в assets/projects/<раздел>/
+   и прописывает имена в JSON-манифест.
    ============================================================ */
 
 (function () {
   'use strict';
 
-  // ── Инициализация после загрузки DOM ────────────────────
-  document.addEventListener('DOMContentLoaded', function () {
-    const cfg = window.PORTFOLIO_CONFIG;
-    if (!cfg) return;
-
-    initGallery(cfg);
-    initLightbox();
-    initFilters();
-    initMenuToggle();
-    animateCounter(cfg.projects.length);
-  });
-
-  // ================================================================
-  // GALLERY ENGINE
-  // ================================================================
-
-  let currentProjects = []; // видимые сейчас проекты (для lightbox)
-
-  function initGallery(cfg) {
-    const grid  = document.getElementById('galleryGrid');
-    const empty = document.getElementById('galleryEmpty');
-
-    if (!cfg.projects || cfg.projects.length === 0) {
-      if (empty) empty.classList.add('show');
-      return;
+  /* ── КАТЕГОРИИ ─────────────────────────────────────────── */
+  var CATEGORIES = {
+    fundament: {
+      label:    'Фундаменты',
+      subtitle: 'Фундаменты любых типов, подпорные стены, плиты перекрытия, монолитные конструкции',
+      icon:     '🏗',
+      color:    '#d8b43d',
+      filters:  { monolith: 'Монолитный', strip: 'Ленточный', pile: 'Свайный' }
+    },
+    kladka: {
+      label:    'Кладка',
+      subtitle: 'Кирпичная кладка, газоблок, ракушечник, несущие и ненесущие конструкции',
+      icon:     '🧱',
+      color:    '#e07a5f',
+      filters:  { brick: 'Кирпич', block: 'Блок', stone: 'Камень' }
+    },
+    krovlya: {
+      label:    'Кровля',
+      subtitle: 'Монтаж и ремонт кровли любой сложности — металлочерепица, профнастил, мягкая кровля',
+      icon:     '🏠',
+      color:    '#5b99c2',
+      filters:  { flat: 'Плоская', pitched: 'Скатная', repair: 'Ремонт' }
+    },
+    otdelka: {
+      label:    'Отделка',
+      subtitle: 'Чистовая и черновая отделка, фасады, штукатурка, облицовка',
+      icon:     '✨',
+      color:    '#a5c95a',
+      filters:  { interior: 'Интерьер', facade: 'Фасад', floor: 'Полы' }
+    },
+    zabory: {
+      label:    'Заборы',
+      subtitle: 'Заборы, ворота, ландшафтное благоустройство территорий',
+      icon:     '🚧',
+      color:    '#9b8fcf',
+      filters:  { metal: 'Металл', brick: 'Кирпич', landscape: 'Благоустройство' }
     }
+  };
 
-    renderCards(cfg.projects);
+  /* ── СТЕЙТ ─────────────────────────────────────────────── */
+  var allProjects     = [];
+  var currentProjects = [];
+  var lightboxIndex   = 0;
+  var touchStartX     = 0;
+
+  /* ── ОПРЕДЕЛИТЬ КАТЕГОРИЮ ───────────────────────────────── */
+  function detectCategory() {
+    var path = window.location.pathname;
+    var keys = Object.keys(CATEGORIES);
+    for (var i = 0; i < keys.length; i++) {
+      if (path.indexOf(keys[i]) !== -1) return keys[i];
+    }
+    return (window.PORTFOLIO_CONFIG && window.PORTFOLIO_CONFIG.category) || null;
   }
 
-  function renderCards(projects) {
-    const grid  = document.getElementById('galleryGrid');
-    const empty = document.getElementById('galleryEmpty');
+  /* ── ПУТЬ К МАНИФЕСТУ ──────────────────────────────────── */
+  function manifestPath(category) {
+    var isInPages = window.location.pathname.indexOf('/pages/') !== -1;
+    return isInPages
+      ? '../assets/projects/' + category + '.json'
+      : 'assets/projects/' + category + '.json';
+  }
 
-    currentProjects = projects;
-    grid.innerHTML  = '';
+  /* ── BASE DIR ──────────────────────────────────────────── */
+  function baseDir(category) {
+    var isInPages = window.location.pathname.indexOf('/pages/') !== -1;
+    return isInPages
+      ? '../assets/projects/' + category + '/'
+      : 'assets/projects/' + category + '/';
+  }
 
-    if (projects.length === 0) {
-      if (empty) empty.classList.add('show');
-      return;
-    }
+  /* ── ИНИЦИАЛИЗАЦИЯ ─────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var category = detectCategory();
+    if (!category || !CATEGORIES[category]) return;
+    var meta = CATEGORIES[category];
+    applyThemeColor(meta.color);
+    buildFilterButtons(meta.filters);
+    initMenuToggle();
+    loadManifest(category, meta);
+  });
 
+  function applyThemeColor(color) {
+    document.documentElement.style.setProperty('--cat-color', color);
+  }
+
+  /* ── ЗАГРУЗИТЬ МАНИФЕСТ ────────────────────────────────── */
+  function loadManifest(category, meta) {
+    var url = manifestPath(category);
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          var data = JSON.parse(xhr.responseText);
+          var dir  = baseDir(category);
+          allProjects = (data.images || []).map(function (item) {
+            if (typeof item === 'string') {
+              return { src: dir + item, title: '', desc: '', tags: [], size: 'medium' };
+            }
+            return {
+              src:   dir + (item.file || item.src || ''),
+              title: item.title || '',
+              desc:  item.desc  || '',
+              tags:  Array.isArray(item.tags) ? item.tags : [],
+              size:  item.size  || 'medium'
+            };
+          });
+          currentProjects = allProjects;
+          renderGrid(allProjects);
+          initLightbox();
+          initFilters();
+          animateCounter(allProjects.length);
+        } catch (e) {
+          showEmpty();
+          animateCounter(0);
+        }
+      } else {
+        showEmpty();
+        animateCounter(0);
+      }
+    };
+    xhr.onerror = function () { showEmpty(); animateCounter(0); };
+    xhr.send();
+  }
+
+  /* ── РЕНДЕР СЕТКИ ──────────────────────────────────────── */
+  function renderGrid(projects) {
+    var grid  = document.getElementById('galleryGrid');
+    var empty = document.getElementById('galleryEmpty');
+    if (!grid) return;
+    grid.innerHTML = '';
+    if (!projects || projects.length === 0) { showEmpty(); return; }
     if (empty) empty.classList.remove('show');
-
-    projects.forEach(function (proj, idx) {
-      const card = buildCard(proj, idx);
-      grid.appendChild(card);
-    });
-
-    // Intersection Observer для lazy load + appear animation
+    for (var i = 0; i < projects.length; i++) {
+      grid.appendChild(buildCard(projects[i], i));
+    }
     observeCards();
   }
 
+  /* ── КАРТОЧКА ──────────────────────────────────────────── */
   function buildCard(proj, idx) {
-    const card = document.createElement('div');
-    const size = proj.size || 'medium';
-    card.className = 'project-card size-' + size;
+    var card = document.createElement('article');
+    card.className = 'gallery-card size-' + (proj.size || 'medium');
     card.dataset.index = idx;
-    card.dataset.tags  = (proj.tags || []).join(' ');
+    if (proj.tags && proj.tags.length) card.dataset.tags = proj.tags.join(',');
 
-    // Анимационная задержка для stagger-эффекта
-    card.style.transitionDelay = Math.min(idx * 60, 400) + 'ms';
+    var bodyHtml = '';
+    if (proj.title || proj.desc) {
+      bodyHtml = '<div class="card-body">' +
+        (proj.title ? '<p class="card-title">' + esc(proj.title) + '</p>' : '') +
+        (proj.desc  ? '<p class="card-desc">'  + esc(proj.desc)  + '</p>' : '') +
+        buildTags(proj.tags) +
+      '</div>';
+    }
 
-    card.innerHTML = [
-      '<img class="project-img" data-src="' + esc(proj.src) + '" alt="' + esc(proj.title || '') + '">',
-      '<div class="project-overlay">',
-        '<p class="project-title">' + esc(proj.title || '') + '</p>',
-        proj.desc ? '<p class="project-desc">' + esc(proj.desc) + '</p>' : '',
-        buildTags(proj.tags),
-      '</div>',
-      '<div class="project-zoom">',
-        '<svg width="18" height="18" viewBox="0 0 18 18" fill="none">',
-          '<circle cx="8" cy="8" r="5.5" stroke="white" stroke-width="1.8"/>',
-          '<path d="M12 12L16 16" stroke="white" stroke-width="1.8" stroke-linecap="round"/>',
-        '</svg>',
-      '</div>',
-    ].join('');
+    card.innerHTML =
+      '<div class="card-img-wrap">' +
+        '<img class="card-img" src="' + proj.src + '" alt="' + esc(proj.title || '') + '" loading="lazy">' +
+        '<div class="card-overlay">' +
+          '<svg class="card-zoom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+            '<circle cx="11" cy="11" r="8"/>' +
+            '<line x1="21" y1="21" x2="16.65" y2="16.65"/>' +
+            '<line x1="11" y1="8" x2="11" y2="14"/>' +
+            '<line x1="8" y1="11" x2="14" y2="11"/>' +
+          '</svg>' +
+        '</div>' +
+      '</div>' + bodyHtml;
 
-    card.addEventListener('click', function () {
-      openLightbox(idx);
-    });
-
+    var capturedIdx = idx;
+    card.addEventListener('click', function () { openLightbox(capturedIdx); });
     return card;
   }
 
+  /* ── ТЕГИ ──────────────────────────────────────────────── */
   function buildTags(tags) {
     if (!tags || !tags.length) return '';
-    const filters = (window.PORTFOLIO_CONFIG && window.PORTFOLIO_CONFIG.filters) || {};
-    return '<div class="project-tags">' +
-      tags.map(function (t) {
-        return '<span class="project-tag">' + esc(filters[t] || t) + '</span>';
-      }).join('') +
-    '</div>';
+    var cat = detectCategory();
+    var filters = (cat && CATEGORIES[cat]) ? CATEGORIES[cat].filters : {};
+    var html = '<div class="card-tags">';
+    for (var i = 0; i < tags.length; i++) {
+      html += '<span class="card-tag">' + esc(filters[tags[i]] || tags[i]) + '</span>';
+    }
+    return html + '</div>';
   }
 
-  // ── Lazy Load + Appear Animation ────────────────────────
+  /* ── ПУСТАЯ ГАЛЕРЕЯ ────────────────────────────────────── */
+  function showEmpty() {
+    var grid  = document.getElementById('galleryGrid');
+    var empty = document.getElementById('galleryEmpty');
+    if (grid)  grid.innerHTML = '';
+    if (empty) empty.classList.add('show');
+  }
+
+  /* ── INTERSECTION OBSERVER ─────────────────────────────── */
   function observeCards() {
-    const io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-
-        const card = entry.target;
-        const img  = card.querySelector('.project-img[data-src]');
-
-        // Загружаем изображение
-        if (img) {
-          img.src = img.dataset.src;
-          img.removeAttribute('data-src');
-          img.onload  = function () { card.classList.add('visible'); };
-          img.onerror = function () { card.classList.add('visible'); };
-        } else {
-          card.classList.add('visible');
-        }
-
-        io.unobserve(card);
+    var cards = document.querySelectorAll('.gallery-card');
+    if (!window.IntersectionObserver) {
+      for (var i = 0; i < cards.length; i++) cards[i].classList.add('visible');
+      return;
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
       });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    }, { threshold: 0.06 });
+    for (var i = 0; i < cards.length; i++) obs.observe(cards[i]);
+  }
 
-    document.querySelectorAll('.project-card').forEach(function (c) {
-      io.observe(c);
+  /* ── ФИЛЬТРЫ ───────────────────────────────────────────── */
+  function buildFilterButtons(filters) {
+    var wrap = document.getElementById('filterButtons');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    var allBtn = document.createElement('button');
+    allBtn.className = 'filter-btn active';
+    allBtn.dataset.filter = 'all';
+    allBtn.textContent = 'Все работы';
+    wrap.appendChild(allBtn);
+
+    Object.keys(filters).forEach(function (key) {
+      var btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.dataset.filter = key;
+      btn.textContent = filters[key];
+      wrap.appendChild(btn);
     });
   }
 
-  // ================================================================
-  // FILTERS
-  // ================================================================
-
   function initFilters() {
-    const btns = document.querySelectorAll('.filter-btn');
-    if (!btns.length) return;
-
-    btns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        btns.forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        applyFilter(btn.dataset.filter);
-      });
+    var wrap = document.getElementById('filterButtons');
+    if (!wrap) return;
+    wrap.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.filter-btn') : e.target;
+      if (!btn || !btn.classList.contains('filter-btn')) return;
+      wrap.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      applyFilter(btn.dataset.filter);
     });
   }
 
   function applyFilter(filter) {
-    const cfg = window.PORTFOLIO_CONFIG;
-    if (!cfg) return;
-
-    let filtered;
-    if (filter === 'all') {
-      filtered = cfg.projects;
-    } else {
-      filtered = cfg.projects.filter(function (p) {
-        return p.tags && p.tags.indexOf(filter) !== -1;
-      });
-    }
-
-    renderCards(filtered);
+    var filtered = filter === 'all' ? allProjects :
+      allProjects.filter(function (p) { return p.tags && p.tags.indexOf(filter) !== -1; });
+    currentProjects = filtered;
+    renderGrid(filtered);
   }
 
-  // ================================================================
-  // LIGHTBOX
-  // ================================================================
-
-  let lbIndex    = 0;
-  let lbOpen     = false;
-  let touchStartX = 0;
-
+  /* ── ЛАЙТБОКС ─────────────────────────────────────────── */
   function initLightbox() {
-    const overlay = document.getElementById('lbOverlay');
-    const lb      = document.getElementById('lightbox');
-    const closeBtn = document.getElementById('lbClose');
-    const prevBtn  = document.getElementById('lbPrev');
-    const nextBtn  = document.getElementById('lbNext');
-    const img      = document.getElementById('lbImg');
+    if (!document.getElementById('lightbox')) {
+      document.body.appendChild(createLightboxDOM());
+    }
+  }
 
-    if (!overlay) return;
+  function createLightboxDOM() {
+    var lb = document.createElement('div');
+    lb.id = 'lightbox';
+    lb.className = 'lightbox';
+    lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-modal', 'true');
+    lb.innerHTML =
+      '<div class="lb-backdrop"></div>' +
+      '<button class="lb-close" aria-label="Закрыть">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+          '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' +
+        '</svg>' +
+      '</button>' +
+      '<button class="lb-prev" aria-label="Назад">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>' +
+      '</button>' +
+      '<div class="lb-track"><img class="lb-img" src="" alt=""></div>' +
+      '<button class="lb-next" aria-label="Далее">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
+      '</button>' +
+      '<div class="lb-caption">' +
+        '<p class="lb-title"></p>' +
+        '<p class="lb-desc"></p>' +
+        '<p class="lb-counter"></p>' +
+      '</div>';
 
-    // Закрытие
-    overlay.addEventListener('click', closeLightbox);
-    if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+    lb.querySelector('.lb-backdrop').addEventListener('click', closeLightbox);
+    lb.querySelector('.lb-close').addEventListener('click', closeLightbox);
+    lb.querySelector('.lb-prev').addEventListener('click', function () { navigateLb(-1); });
+    lb.querySelector('.lb-next').addEventListener('click', function () { navigateLb(1); });
 
-    // Навигация кнопками
-    if (prevBtn) prevBtn.addEventListener('click', function () { navigate(-1); });
-    if (nextBtn) nextBtn.addEventListener('click', function () { navigate(1); });
-
-    // Клавиатура
     document.addEventListener('keydown', function (e) {
-      if (!lbOpen) return;
+      var lb2 = document.getElementById('lightbox');
+      if (!lb2 || !lb2.classList.contains('open')) return;
       if (e.key === 'Escape')     closeLightbox();
-      if (e.key === 'ArrowLeft')  navigate(-1);
-      if (e.key === 'ArrowRight') navigate(1);
+      if (e.key === 'ArrowLeft')  navigateLb(-1);
+      if (e.key === 'ArrowRight') navigateLb(1);
     });
 
-    // Swipe на мобильных
-    if (lb) {
-      lb.addEventListener('touchstart', function (e) {
-        touchStartX = e.changedTouches[0].screenX;
-      }, { passive: true });
+    lb.addEventListener('touchstart', function (e) {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    lb.addEventListener('touchend', function (e) {
+      var diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) navigateLb(diff > 0 ? 1 : -1);
+    }, { passive: true });
 
-      lb.addEventListener('touchend', function (e) {
-        const dx = e.changedTouches[0].screenX - touchStartX;
-        if (Math.abs(dx) > 50) {
-          navigate(dx < 0 ? 1 : -1);
-        }
-      }, { passive: true });
-    }
+    return lb;
   }
 
   function openLightbox(idx) {
-    lbIndex = idx;
-    lbOpen  = true;
-
-    document.getElementById('lbOverlay').classList.add('open');
-    document.getElementById('lightbox').classList.add('open');
+    lightboxIndex = idx;
+    var lb = document.getElementById('lightbox');
+    if (!lb) { lb = createLightboxDOM(); document.body.appendChild(lb); }
+    lb.classList.add('open');
     document.body.style.overflow = 'hidden';
-
-    showImage(idx);
+    showLbImage(lightboxIndex);
   }
 
   function closeLightbox() {
-    lbOpen = false;
-    document.getElementById('lbOverlay').classList.remove('open');
-    document.getElementById('lightbox').classList.remove('open');
+    var lb = document.getElementById('lightbox');
+    if (lb) lb.classList.remove('open');
     document.body.style.overflow = '';
   }
 
-  function navigate(dir) {
-    lbIndex = (lbIndex + dir + currentProjects.length) % currentProjects.length;
-    showImage(lbIndex);
+  function navigateLb(dir) {
+    if (!currentProjects.length) return;
+    lightboxIndex = (lightboxIndex + dir + currentProjects.length) % currentProjects.length;
+    showLbImage(lightboxIndex);
   }
 
-  function showImage(idx) {
-    const proj    = currentProjects[idx];
-    const img     = document.getElementById('lbImg');
-    const caption = document.getElementById('lbCaption');
-    const counter = document.getElementById('lbCounter');
-    const spinner = document.getElementById('lbSpinner');
+  function showLbImage(idx) {
+    var lb = document.getElementById('lightbox');
+    if (!lb) return;
+    var proj = currentProjects[idx];
+    if (!proj) return;
 
-    if (!proj || !img) return;
+    var img     = lb.querySelector('.lb-img');
+    var titleEl = lb.querySelector('.lb-title');
+    var descEl  = lb.querySelector('.lb-desc');
+    var counter = lb.querySelector('.lb-counter');
 
-    // Показываем спиннер, скрываем изображение
-    img.classList.add('loading');
-    img.classList.remove('loaded');
-    if (spinner) spinner.classList.add('show');
+    img.style.opacity   = '0';
+    img.style.transform = 'scale(.97)';
 
-    const newImg  = new Image();
-    newImg.src    = proj.src;
-    newImg.onload = function () {
+    var tempImg = new Image();
+    tempImg.onload = function () {
       img.src = proj.src;
       img.alt = proj.title || '';
-      img.classList.remove('loading');
-      img.classList.add('loaded');
-      if (spinner) spinner.classList.remove('show');
+      setTimeout(function () {
+        img.style.transition = 'opacity .3s ease, transform .3s ease';
+        img.style.opacity    = '1';
+        img.style.transform  = 'scale(1)';
+      }, 10);
     };
-    newImg.onerror = function () {
-      if (spinner) spinner.classList.remove('show');
-      img.classList.remove('loading');
-    };
+    tempImg.onerror = function () { img.src = proj.src; img.style.opacity = '1'; };
+    tempImg.src = proj.src;
 
-    if (caption) caption.textContent = proj.title || '';
+    if (titleEl) titleEl.textContent = proj.title || '';
+    if (descEl)  descEl.textContent  = proj.desc  || '';
     if (counter) counter.textContent = (idx + 1) + ' / ' + currentProjects.length;
+
+    var hidden = currentProjects.length <= 1;
+    var prevBtn = lb.querySelector('.lb-prev');
+    var nextBtn = lb.querySelector('.lb-next');
+    if (prevBtn) prevBtn.style.display = hidden ? 'none' : '';
+    if (nextBtn) nextBtn.style.display = hidden ? 'none' : '';
   }
 
-  // ================================================================
-  // COUNTER ANIMATION (stat)
-  // ================================================================
-
+  /* ── СЧЁТЧИК ───────────────────────────────────────────── */
   function animateCounter(total) {
-    const el = document.getElementById('stat-count');
-    if (!el || total === 0) return;
-
-    el.textContent = total + '+';
+    var el = document.getElementById('stat-count');
+    if (!el) return;
+    if (total === 0) { el.textContent = '0+'; return; }
+    var cur = 0;
+    var step = Math.max(1, Math.ceil(total / 30));
+    var t = setInterval(function () {
+      cur += step;
+      if (cur >= total) { cur = total; clearInterval(t); }
+      el.textContent = cur + '+';
+    }, 40);
   }
 
-  // ================================================================
-  // MOBILE MENU (повторяем из script.js на случай)
-  // ================================================================
-
+  /* ── МОБИЛЬНОЕ МЕНЮ ────────────────────────────────────── */
   function initMenuToggle() {
-    const menuBtn  = document.querySelector('.menu-toggle');
-    const mobileNav = document.querySelector('.mobile-nav');
-    if (!menuBtn || !mobileNav) return;
-
-    menuBtn.addEventListener('click', function () {
-      mobileNav.classList.toggle('open');
-    });
-
-    mobileNav.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
-        mobileNav.classList.remove('open');
-      });
+    var btn = document.querySelector('.menu-toggle') || document.querySelector('.menu-btn');
+    var nav = document.querySelector('.mobile-nav');
+    if (!btn || !nav) return;
+    btn.addEventListener('click', function () { nav.classList.toggle('open'); });
+    nav.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { nav.classList.remove('open'); });
     });
   }
 
-  // ================================================================
-  // UTILITIES
-  // ================================================================
-
+  /* ── ESCAPE HTML ───────────────────────────────────────── */
   function esc(str) {
-    if (!str) return '';
     return String(str)
       .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
       .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
 })();
