@@ -1,14 +1,10 @@
 /* ============================================================
-   PORTFOLIO.JS — движок галереи Феликс ДВ v2.0
-   Загружает изображения из JSON-манифестов автоматически.
-   Пользователь кладёт фото в assets/projects/<раздел>/
-   и прописывает имена в JSON-манифест.
+   PORTFOLIO.JS — движок галереи Феликс ДВ v2.1
    ============================================================ */
 
 (function () {
   'use strict';
 
-  /* ── КАТЕГОРИИ ─────────────────────────────────────────── */
   var CATEGORIES = {
     fundament: {
       label:    'Фундаменты',
@@ -47,13 +43,9 @@
     }
   };
 
-  /* ── СТЕЙТ ─────────────────────────────────────────────── */
   var allProjects     = [];
   var currentProjects = [];
-  var lightboxIndex   = 0;
-  var touchStartX     = 0;
 
-  /* ── ОПРЕДЕЛИТЬ КАТЕГОРИЮ ───────────────────────────────── */
   function detectCategory() {
     var path = window.location.pathname;
     var keys = Object.keys(CATEGORIES);
@@ -63,7 +55,6 @@
     return (window.PORTFOLIO_CONFIG && window.PORTFOLIO_CONFIG.category) || null;
   }
 
-  /* ── ПУТЬ К МАНИФЕСТУ ──────────────────────────────────── */
   function manifestPath(category) {
     var isInPages = window.location.pathname.indexOf('/pages/') !== -1;
     return isInPages
@@ -71,7 +62,6 @@
       : 'assets/projects/' + category + '.json';
   }
 
-  /* ── BASE DIR ──────────────────────────────────────────── */
   function baseDir(category) {
     var isInPages = window.location.pathname.indexOf('/pages/') !== -1;
     return isInPages
@@ -79,7 +69,6 @@
       : 'assets/projects/' + category + '/';
   }
 
-  /* ── ИНИЦИАЛИЗАЦИЯ ─────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
     var category = detectCategory();
     if (!category || !CATEGORIES[category]) return;
@@ -94,7 +83,6 @@
     document.documentElement.style.setProperty('--cat-color', color);
   }
 
-  /* ── ЗАГРУЗИТЬ МАНИФЕСТ ────────────────────────────────── */
   function loadManifest(category, meta) {
     var url = manifestPath(category);
     var xhr = new XMLHttpRequest();
@@ -118,7 +106,6 @@
           });
           currentProjects = allProjects;
           renderGrid(allProjects);
-          initLightbox();
           initFilters();
           animateCounter(allProjects.length);
         } catch (e) {
@@ -134,7 +121,6 @@
     xhr.send();
   }
 
-  /* ── РЕНДЕР СЕТКИ ──────────────────────────────────────── */
   function renderGrid(projects) {
     var grid  = document.getElementById('galleryGrid');
     var empty = document.getElementById('galleryEmpty');
@@ -148,7 +134,7 @@
     observeCards();
   }
 
-  /* ── КАРТОЧКА ──────────────────────────────────────────── */
+  /* ── КАРТОЧКА БЕЗ ЛУПЫ И БЕЗ КЛИКА ───────────────────── */
   function buildCard(proj, idx) {
     var card = document.createElement('article');
     card.className = 'gallery-card size-' + (proj.size || 'medium');
@@ -167,22 +153,11 @@
     card.innerHTML =
       '<div class="card-img-wrap">' +
         '<img class="card-img" src="' + proj.src + '" alt="' + esc(proj.title || '') + '" loading="lazy">' +
-        '<div class="card-overlay">' +
-          '<svg class="card-zoom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-            '<circle cx="11" cy="11" r="8"/>' +
-            '<line x1="21" y1="21" x2="16.65" y2="16.65"/>' +
-            '<line x1="11" y1="8" x2="11" y2="14"/>' +
-            '<line x1="8" y1="11" x2="14" y2="11"/>' +
-          '</svg>' +
-        '</div>' +
       '</div>' + bodyHtml;
 
-    var capturedIdx = idx;
-    card.addEventListener('click', function () { openLightbox(capturedIdx); });
     return card;
   }
 
-  /* ── ТЕГИ ──────────────────────────────────────────────── */
   function buildTags(tags) {
     if (!tags || !tags.length) return '';
     var cat = detectCategory();
@@ -194,7 +169,6 @@
     return html + '</div>';
   }
 
-  /* ── ПУСТАЯ ГАЛЕРЕЯ ────────────────────────────────────── */
   function showEmpty() {
     var grid  = document.getElementById('galleryGrid');
     var empty = document.getElementById('galleryEmpty');
@@ -202,7 +176,6 @@
     if (empty) empty.classList.add('show');
   }
 
-  /* ── INTERSECTION OBSERVER ─────────────────────────────── */
   function observeCards() {
     var cards = document.querySelectorAll('.gallery-card');
     if (!window.IntersectionObserver) {
@@ -217,7 +190,6 @@
     for (var i = 0; i < cards.length; i++) obs.observe(cards[i]);
   }
 
-  /* ── ФИЛЬТРЫ ───────────────────────────────────────────── */
   function buildFilterButtons(filters) {
     var wrap = document.getElementById('galleryFilter') || document.getElementById('filterButtons');
     if (!wrap) return;
@@ -257,123 +229,6 @@
     renderGrid(filtered);
   }
 
-  /* ── ЛАЙТБОКС ─────────────────────────────────────────── */
-  function initLightbox() {
-    if (!document.getElementById('lightbox')) {
-      document.body.appendChild(createLightboxDOM());
-    }
-  }
-
-  function createLightboxDOM() {
-    var lb = document.createElement('div');
-    lb.id = 'lightbox';
-    lb.className = 'lightbox';
-    lb.setAttribute('role', 'dialog');
-    lb.setAttribute('aria-modal', 'true');
-    lb.innerHTML =
-      '<div class="lb-backdrop"></div>' +
-      '<button class="lb-close" aria-label="Закрыть">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
-          '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' +
-        '</svg>' +
-      '</button>' +
-      '<button class="lb-prev" aria-label="Назад">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>' +
-      '</button>' +
-      '<div class="lb-track"><img class="lb-img" src="" alt=""></div>' +
-      '<button class="lb-next" aria-label="Далее">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' +
-      '</button>' +
-      '<div class="lb-caption">' +
-        '<p class="lb-title"></p>' +
-        '<p class="lb-desc"></p>' +
-        '<p class="lb-counter"></p>' +
-      '</div>';
-
-    lb.querySelector('.lb-backdrop').addEventListener('click', closeLightbox);
-    lb.querySelector('.lb-close').addEventListener('click', closeLightbox);
-    lb.querySelector('.lb-prev').addEventListener('click', function () { navigateLb(-1); });
-    lb.querySelector('.lb-next').addEventListener('click', function () { navigateLb(1); });
-
-    document.addEventListener('keydown', function (e) {
-      var lb2 = document.getElementById('lightbox');
-      if (!lb2 || !lb2.classList.contains('open')) return;
-      if (e.key === 'Escape')     closeLightbox();
-      if (e.key === 'ArrowLeft')  navigateLb(-1);
-      if (e.key === 'ArrowRight') navigateLb(1);
-    });
-
-    lb.addEventListener('touchstart', function (e) {
-      touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    lb.addEventListener('touchend', function (e) {
-      var diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 50) navigateLb(diff > 0 ? 1 : -1);
-    }, { passive: true });
-
-    return lb;
-  }
-
-  function openLightbox(idx) {
-    lightboxIndex = idx;
-    var lb = document.getElementById('lightbox');
-    if (!lb) { lb = createLightboxDOM(); document.body.appendChild(lb); }
-    lb.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    showLbImage(lightboxIndex);
-  }
-
-  function closeLightbox() {
-    var lb = document.getElementById('lightbox');
-    if (lb) lb.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function navigateLb(dir) {
-    if (!currentProjects.length) return;
-    lightboxIndex = (lightboxIndex + dir + currentProjects.length) % currentProjects.length;
-    showLbImage(lightboxIndex);
-  }
-
-  function showLbImage(idx) {
-    var lb = document.getElementById('lightbox');
-    if (!lb) return;
-    var proj = currentProjects[idx];
-    if (!proj) return;
-
-    var img     = lb.querySelector('.lb-img');
-    var titleEl = lb.querySelector('.lb-title');
-    var descEl  = lb.querySelector('.lb-desc');
-    var counter = lb.querySelector('.lb-counter');
-
-    img.style.opacity   = '0';
-    img.style.transform = 'scale(.97)';
-
-    var tempImg = new Image();
-    tempImg.onload = function () {
-      img.src = proj.src;
-      img.alt = proj.title || '';
-      setTimeout(function () {
-        img.style.transition = 'opacity .3s ease, transform .3s ease';
-        img.style.opacity    = '1';
-        img.style.transform  = 'scale(1)';
-      }, 10);
-    };
-    tempImg.onerror = function () { img.src = proj.src; img.style.opacity = '1'; };
-    tempImg.src = proj.src;
-
-    if (titleEl) titleEl.textContent = proj.title || '';
-    if (descEl)  descEl.textContent  = proj.desc  || '';
-    if (counter) counter.textContent = (idx + 1) + ' / ' + currentProjects.length;
-
-    var hidden = currentProjects.length <= 1;
-    var prevBtn = lb.querySelector('.lb-prev');
-    var nextBtn = lb.querySelector('.lb-next');
-    if (prevBtn) prevBtn.style.display = hidden ? 'none' : '';
-    if (nextBtn) nextBtn.style.display = hidden ? 'none' : '';
-  }
-
-  /* ── СЧЁТЧИК ───────────────────────────────────────────── */
   function animateCounter(total) {
     var el = document.getElementById('stat-count');
     if (!el) return;
@@ -387,7 +242,6 @@
     }, 40);
   }
 
-  /* ── МОБИЛЬНОЕ МЕНЮ ────────────────────────────────────── */
   function initMenuToggle() {
     var btn = document.querySelector('.menu-toggle') || document.querySelector('.menu-btn');
     var nav = document.querySelector('.mobile-nav');
@@ -398,7 +252,6 @@
     });
   }
 
-  /* ── ESCAPE HTML ───────────────────────────────────────── */
   function esc(str) {
     return String(str)
       .replace(/&/g, '&amp;')
